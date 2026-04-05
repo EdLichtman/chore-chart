@@ -170,7 +170,8 @@ describe('ChecklistService', () => {
       expect(result.categories[0].chores).toContain(chore);
     });
 
-    it('does NOT show overdue chore in week 2', () => {
+    it('does NOT show a long-interval overdue chore until its next occurrence', () => {
+      // lastAligned Oct 1, 6-month interval → next due Sept 26, 2026 — not in week 2
       const chore = makeChore({ id: 'c1', name: 'C1', canBeOverdue: true, lastAligned: '2025-10-01', interval: { n: 6, unit: 'month' } });
       const data = makeChoreData({ maintenance: { label: 'Maintenance', chores: [chore] } });
       const result = service.groupChoresForChecklist(data, futureWeekStart);
@@ -178,11 +179,13 @@ describe('ChecklistService', () => {
       expect(result.onDeck).not.toContain(chore);
     });
 
-    it('does NOT put overdue chore in onDeck in future week', () => {
-      const chore = makeChore({ id: 'c1', name: 'C1', canBeOverdue: true, lastAligned: '2025-10-01', interval: { n: 6, unit: 'month' } });
-      const data = makeChoreData({ maintenance: { label: 'Maintenance', chores: [chore] } });
-      const result = service.groupChoresForChecklist(data, futureWeekStart);
-      expect(result.onDeck).not.toContain(chore);
+    it('shows weekly chore in week 4 by rolling forward the due date', () => {
+      // lastAligned April 5 → due April 12 (week 2). Rolling +7 twice → April 26 (week 4).
+      const weekStart4 = new Date(2026, 3, 26);
+      const chore = makeChore({ id: 'c1', name: 'C1', lastAligned: '2026-04-05', interval: { n: 1, unit: 'week' } });
+      const data = makeChoreData({ other: { label: 'Other', chores: [chore] } });
+      const result = service.groupChoresForChecklist(data, weekStart4);
+      expect(result.categories[0].chores).toContain(chore);
     });
 
     it('shows chore with no lastAligned in future week too', () => {

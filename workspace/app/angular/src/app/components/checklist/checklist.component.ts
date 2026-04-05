@@ -43,6 +43,14 @@ export class ChecklistComponent implements OnChanges {
     }
   }
 
+  get isCurrentOrPastWeek(): boolean {
+    const anchor = this.dateService.getWeekAnchor(new Date());
+    anchor.setHours(0, 0, 0, 0);
+    const ws = new Date(this.weekStart);
+    ws.setHours(0, 0, 0, 0);
+    return ws <= anchor;
+  }
+
   get categoryColClass(): string {
     const webCols = this.choreData?.gridProperties.web.columns;
     const n = webCols === 'auto' || webCols == null

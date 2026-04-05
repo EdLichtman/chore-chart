@@ -52,12 +52,14 @@
               [id]="'chore-' + chore.id"
             />
             <label class="form-check-label" [for]="'chore-' + chore.id">
-              <span *ngIf="isPastDue(chore)" class="alert-indicator overdue">!</span>
-              <span *ngIf="isPending(chore)" class="alert-indicator pending">⚠</span>
+              <span *ngIf="isPastDue(chore) && isCurrentOrPastWeek" class="alert-badge overdue"><i class="fa-solid fa-exclamation"></i></span>
+              <span *ngIf="isPending(chore)" class="alert-badge pending"><i class="fa-solid fa-question"></i></span>
               <strong>{{ chore.name }}</strong>
               <span *ngIf="chore.dayConfigurable"> — day: <span class="day-blank"></span></span>
               <sup *ngIf="isPending(chore)" class="aligned-date">pending</sup>
               <sup *ngIf="getLastAlignedDisplay(chore)" class="aligned-date">{{ getLastAlignedDisplay(chore) }}</sup>
+              <span *ngIf="isPastDue(chore) && isCurrentOrPastWeek" class="alert-badge overdue trailing"><i class="fa-solid fa-exclamation"></i></span>
+              <span *ngIf="isPending(chore)" class="alert-badge pending trailing"><i class="fa-solid fa-question"></i></span>
             </label>
           </div>
 

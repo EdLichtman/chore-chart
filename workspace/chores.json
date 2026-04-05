@@ -76,8 +76,8 @@
           "canBeOverdue": false
         },
         {
-          "id": "sweep-first-floor",
-          "name": "Sweep First Floor",
+          "id": "sweep-kitchen",
+          "name": "Sweep Kitchen",
           "interval": { "n": 1, "unit": "week" },
           "dayConfigurable": false,
           "weekPin": null,

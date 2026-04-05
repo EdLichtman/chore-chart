@@ -28,11 +28,20 @@
         font-weight: 500;
         cursor: pointer;
 
-        .alert-indicator {
-          font-size: 0.7rem;
-          font-weight: 700;
-          margin-right: 0.25rem;
+        .alert-badge {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 1.1em;
+          height: 1.1em;
+          border: 1.5px solid currentColor;
+          border-radius: 2px;
+          vertical-align: middle;
+          margin-right: 0.3em;
 
+          i { font-size: 0.65em; font-style: normal; }
+
+          &.trailing { margin-right: 0; margin-left: 0.3em; }
           &.overdue { color: #dc3545; }
           &.pending { color: #fd7e14; }
         }

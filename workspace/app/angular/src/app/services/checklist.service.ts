@@ -99,6 +99,15 @@ export class ChecklistService {
     return this.dateService.getNextDueDate(chore.lastAligned ?? null, chore.interval);
   }
 
+  private getIntervalDays(interval: Interval): number {
+    switch (interval.unit) {
+      case 'day':   return interval.n;
+      case 'week':  return interval.n * 7;
+      case 'month': return interval.n * 30;
+      case 'year':  return interval.n * 365;
+    }
+  }
+
   private parseMMDD(mmdd: string, year: number): Date {
     const [month, day] = mmdd.split('-').map(Number);
     return new Date(year, month - 1, day);
@@ -148,8 +157,14 @@ export class ChecklistService {
         if (!dueDate) continue;
 
         if (isFutureWeek) {
-          // Future weeks: only show chores whose due date falls exactly in this week
-          if (this.dateService.isInWeek(dueDate, weekStart)) {
+          // Future weeks: project the due date forward by the interval until it
+          // reaches this week, then check if it lands here.
+          const intervalDays = this.getIntervalDays(chore.interval);
+          let projectedDue = new Date(dueDate);
+          while (projectedDue < weekStartNorm) {
+            projectedDue = this.dateService.addDays(projectedDue, intervalDays);
+          }
+          if (this.dateService.isInWeek(projectedDue, weekStart)) {
             dueChores.push(chore);
           }
         } else {
