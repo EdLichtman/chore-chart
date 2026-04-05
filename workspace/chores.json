@@ -1,259 +1,316 @@
 {
-  "chores": [
-    {
-      "id": "mow",
-      "name": "Mow",
-      "interval": { "n": 1, "unit": "week" },
-      "weekend": true,
-      "dayConfigurable": false,
-      "weekPin": null,
-      "dayPin": null,
-      "lastAligned": "pending",
-      "notes": [],
-      "synchronizedWith": [],
-      "requirements": [],
-      "annualCadence": [
-        { "startDate": "05-01", "interval": { "n": 1, "unit": "week" } },
-        { "startDate": "08-01", "interval": { "n": 2, "unit": "week" } },
-        { "startDate": "11-01", "status": "inactive" }
-      ],
-      "canBeOverdue": false
-    },
-    {
-      "id": "vacuum-upstairs",
-      "name": "Vacuum Upstairs",
-      "interval": { "n": 2, "unit": "week" },
-      "weekend": false,
-      "dayConfigurable": false,
-      "weekPin": "odd",
-      "dayPin": null,
-      "lastAligned": "pending",
-      "notes": [],
-      "synchronizedWith": [],
-      "requirements": [],
-      "annualCadence": [],
-      "canBeOverdue": false
-    },
-    {
-      "id": "vacuum-downstairs",
-      "name": "Vacuum Downstairs",
-      "interval": { "n": 2, "unit": "week" },
-      "weekend": false,
-      "dayConfigurable": false,
-      "weekPin": "even",
-      "dayPin": null,
-      "lastAligned": "pending",
-      "notes": [],
-      "synchronizedWith": [],
-      "requirements": [],
-      "annualCadence": [],
-      "canBeOverdue": false
-    },
-    {
-      "id": "furnace-filter",
-      "name": "Furnace Filter",
-      "interval": { "n": 2, "unit": "month" },
-      "weekend": false,
-      "dayConfigurable": false,
-      "weekPin": null,
-      "dayPin": 1,
-      "lastAligned": "2026-02-01",
-      "notes": [],
-      "synchronizedWith": [],
-      "requirements": [],
-      "annualCadence": [],
-      "canBeOverdue": true
-    },
+  "gridProperties": {
+    "print": { "columns": 2, "rows": 2 },
+    "web": { "columns": 2, "rows": 2 }
+  },
+  "daily": [
     {
       "id": "scoop-litter",
       "name": "Scoop Litter",
-      "interval": { "n": 1, "unit": "day" },
-      "weekend": false,
-      "dayConfigurable": false,
-      "weekPin": null,
-      "dayPin": null,
-      "lastAligned": null,
-      "notes": [
-        "This is scooping only — not a full litter replacement (see Cat Litter)"
-      ],
-      "synchronizedWith": [],
-      "requirements": [],
-      "annualCadence": [],
-      "canBeOverdue": false
-    },
-    {
-      "id": "cat-litter",
-      "name": "Cat Litter",
-      "interval": { "n": 2, "unit": "week" },
-      "weekend": true,
-      "dayConfigurable": false,
-      "weekPin": null,
-      "dayPin": null,
-      "lastAligned": "2026-03-22",
-      "notes": [],
-      "synchronizedWith": [],
-      "requirements": [],
-      "annualCadence": [],
-      "canBeOverdue": false
-    },
-    {
-      "id": "refill-cat-food",
-      "name": "Refill Cat Food",
-      "interval": { "n": 1, "unit": "week" },
-      "weekend": true,
-      "dayConfigurable": false,
-      "weekPin": null,
-      "dayPin": null,
-      "lastAligned": "pending",
-      "notes": [],
-      "synchronizedWith": [],
-      "requirements": [],
-      "annualCadence": [],
-      "canBeOverdue": false
-    },
-    {
-      "id": "clean-little-trashes",
-      "name": "Clean Little Trashes Around House",
-      "interval": { "n": 2, "unit": "week" },
-      "weekend": true,
-      "dayConfigurable": false,
-      "weekPin": null,
-      "dayPin": null,
-      "lastAligned": "2026-04-01",
-      "notes": [],
-      "synchronizedWith": [],
-      "requirements": [],
-      "annualCadence": [],
-      "canBeOverdue": false
-    },
-    {
-      "id": "food-plan",
-      "name": "Food Plan",
-      "interval": { "n": 1, "unit": "week" },
-      "weekend": true,
-      "dayConfigurable": true,
-      "weekPin": null,
-      "dayPin": null,
-      "lastAligned": "pending",
-      "notes": [
-        "Meal Plan",
-        "Meal Prep"
-      ],
-      "synchronizedWith": [],
-      "requirements": [],
-      "annualCadence": [],
-      "canBeOverdue": false
-    },
-    {
-      "id": "cat-water-upstairs",
-      "name": "Clean Cat Water Upstairs",
-      "interval": { "n": 2, "unit": "week" },
-      "weekend": true,
-      "dayConfigurable": false,
-      "weekPin": null,
-      "dayPin": null,
-      "lastAligned": "2026-03-22",
-      "notes": [],
-      "synchronizedWith": ["cat-water-downstairs"],
-      "requirements": [
-        {
-          "id": "cat-water-filter",
-          "name": "Replace Filter",
-          "interval": { "n": 1, "unit": "month" },
-          "lastAligned": "2026-03-29"
-        }
-      ],
-      "annualCadence": [],
-      "canBeOverdue": false
-    },
-    {
-      "id": "cat-water-downstairs",
-      "name": "Clean Cat Water Downstairs",
-      "interval": { "n": 2, "unit": "week" },
-      "weekend": true,
-      "dayConfigurable": false,
-      "weekPin": null,
-      "dayPin": null,
-      "lastAligned": "2026-03-22",
-      "notes": [],
-      "synchronizedWith": ["cat-water-upstairs"],
-      "requirements": [
-        {
-          "id": "cat-water-filter",
-          "name": "Replace Filter",
-          "interval": { "n": 1, "unit": "month" },
-          "lastAligned": "2026-03-29"
-        }
-      ],
-      "annualCadence": [],
-      "canBeOverdue": false
-    },
-    {
-      "id": "apply-bug-control",
-      "name": "Apply Bug Control",
-      "interval": { "n": 3, "unit": "month" },
-      "weekend": false,
-      "dayConfigurable": false,
-      "weekPin": null,
-      "dayPin": 1,
-      "lastAligned": "2025-10-01",
-      "notes": [
-        "Wear gloves",
-        "Use Talstar outdoors",
-        "Spread Ant Pellets around foundation"
-      ],
-      "synchronizedWith": [],
-      "requirements": [],
-      "annualCadence": [
-        { "startDate": "04-01", "interval": { "n": 3, "unit": "month" } },
-        { "startDate": "01-01", "status": "inactive" }
-      ],
-      "canBeOverdue": true
-    },
-    {
-      "id": "drain-water-heater",
-      "name": "Drain the Water Heater",
-      "interval": { "n": 6, "unit": "month" },
-      "weekend": false,
-      "dayConfigurable": false,
-      "weekPin": null,
-      "dayPin": 1,
-      "lastAligned": "2025-10-01",
-      "notes": [],
-      "synchronizedWith": [],
-      "requirements": [],
-      "annualCadence": [],
-      "canBeOverdue": true
-    },
-    {
-      "id": "sweep-first-floor",
-      "name": "Sweep First Floor",
-      "interval": { "n": 1, "unit": "week" },
-      "weekend": false,
-      "dayConfigurable": false,
-      "weekPin": null,
-      "dayPin": null,
-      "lastAligned": "pending",
-      "notes": [],
-      "synchronizedWith": [],
-      "requirements": [],
-      "annualCadence": [],
-      "canBeOverdue": false
-    },
-    {
-      "id": "mop-first-floor",
-      "name": "Mop First Floor",
-      "interval": { "n": 2, "unit": "week" },
-      "weekend": false,
-      "dayConfigurable": false,
-      "weekPin": "even",
-      "dayPin": null,
-      "lastAligned": "pending",
-      "notes": [],
-      "synchronizedWith": [],
-      "requirements": [],
-      "annualCadence": [],
-      "canBeOverdue": false
+      "notes": ["This is scooping only — not a full litter replacement (see Cat Litter)"]
     }
-  ]
+  ],
+  "categories": {
+    "upstairs": {
+      "label": "Upstairs",
+      "chores": [
+        {
+          "id": "vacuum-upstairs",
+          "name": "Vacuum Upstairs",
+          "interval": { "n": 1, "unit": "week" },
+          "dayConfigurable": false,
+          "weekPin": null,
+          "dayPin": null,
+          "notes": [],
+          "requirements": [],
+          "annualCadence": [],
+          "canBeOverdue": false
+        },
+        {
+          "id": "cat-water-upstairs",
+          "name": "Clean Cat Water Upstairs",
+          "interval": { "n": 2, "unit": "week" },
+          "dayConfigurable": false,
+          "weekPin": null,
+          "dayPin": null,
+          "lastAligned": "2026-03-22",
+          "notes": [],
+          "requirements": [
+            {
+              "id": "cat-water-upstairs-filter",
+              "name": "Replace Filter",
+              "interval": { "n": 1, "unit": "month" },
+              "lastAligned": "2026-03-29"
+            }
+          ],
+          "annualCadence": [],
+          "canBeOverdue": false
+        }
+      ]
+    },
+    "downstairs": {
+      "label": "Downstairs",
+      "chores": [
+        {
+          "id": "vacuum-downstairs",
+          "name": "Vacuum Downstairs",
+          "interval": { "n": 1, "unit": "week" },
+          "dayConfigurable": false,
+          "weekPin": null,
+          "dayPin": null,
+          "notes": [],
+          "requirements": [],
+          "annualCadence": [],
+          "canBeOverdue": false
+        },
+        {
+          "id": "wipe-kitchen-surfaces",
+          "name": "Wipe Down Kitchen Surfaces",
+          "interval": { "n": 1, "unit": "week" },
+          "dayConfigurable": false,
+          "weekPin": null,
+          "dayPin": null,
+          "notes": [],
+          "requirements": [],
+          "annualCadence": [],
+          "canBeOverdue": false
+        },
+        {
+          "id": "sweep-first-floor",
+          "name": "Sweep First Floor",
+          "interval": { "n": 1, "unit": "week" },
+          "dayConfigurable": false,
+          "weekPin": null,
+          "dayPin": null,
+          "notes": [],
+          "requirements": [],
+          "annualCadence": [],
+          "canBeOverdue": false
+        },
+        {
+          "id": "mop-first-floor",
+          "name": "Mop First Floor",
+          "interval": { "n": 2, "unit": "week" },
+          "dayConfigurable": false,
+          "weekPin": "even",
+          "dayPin": null,
+          "notes": [],
+          "requirements": [],
+          "annualCadence": [],
+          "canBeOverdue": false
+        },
+        {
+          "id": "cat-water-downstairs",
+          "name": "Clean Cat Water Downstairs",
+          "interval": { "n": 2, "unit": "week" },
+          "dayConfigurable": false,
+          "weekPin": null,
+          "dayPin": null,
+          "lastAligned": "2026-03-22",
+          "notes": [],
+          "requirements": [
+            {
+              "id": "cat-water-downstairs-filter",
+              "name": "Replace Filter",
+              "interval": { "n": 1, "unit": "month" },
+              "lastAligned": "2026-03-29"
+            }
+          ],
+          "annualCadence": [],
+          "canBeOverdue": false
+        }
+      ]
+    },
+    "other": {
+      "label": "Other",
+      "chores": [
+        {
+          "id": "cat-litter",
+          "name": "Cat Litter",
+          "interval": { "n": 2, "unit": "week" },
+          "dayConfigurable": false,
+          "weekPin": null,
+          "dayPin": null,
+          "lastAligned": "2026-03-22",
+          "notes": [],
+          "requirements": [],
+          "annualCadence": [],
+          "canBeOverdue": false
+        },
+        {
+          "id": "refill-cat-food",
+          "name": "Refill Cat Food",
+          "interval": { "n": 1, "unit": "week" },
+          "dayConfigurable": false,
+          "weekPin": null,
+          "dayPin": null,
+          "notes": [],
+          "requirements": [],
+          "annualCadence": [],
+          "canBeOverdue": false
+        },
+        {
+          "id": "clean-little-trashes",
+          "name": "Clean Little Trashes Around House",
+          "interval": { "n": 2, "unit": "week" },
+          "dayConfigurable": false,
+          "weekPin": null,
+          "dayPin": null,
+          "lastAligned": "2026-04-01",
+          "notes": [],
+          "requirements": [],
+          "annualCadence": [],
+          "canBeOverdue": false
+        },
+        {
+          "id": "laundry",
+          "name": "Laundry",
+          "interval": { "n": 1, "unit": "week" },
+          "dayConfigurable": true,
+          "weekPin": null,
+          "dayPin": null,
+          "notes": [],
+          "requirements": [],
+          "annualCadence": [],
+          "canBeOverdue": false
+        },
+        {
+          "id": "food-plan",
+          "name": "Food Plan",
+          "interval": { "n": 1, "unit": "week" },
+          "dayConfigurable": true,
+          "weekPin": null,
+          "dayPin": null,
+          "notes": ["Meal Plan", "Meal Prep"],
+          "requirements": [],
+          "annualCadence": [],
+          "canBeOverdue": false
+        },
+        {
+          "id": "refill-birdseed",
+          "name": "Refill Birdseed",
+          "interval": { "n": 1, "unit": "week" },
+          "dayConfigurable": false,
+          "weekPin": null,
+          "dayPin": null,
+          "notes": [],
+          "requirements": [],
+          "annualCadence": [],
+          "canBeOverdue": false
+        },
+        {
+          "id": "dusting",
+          "name": "Dusting",
+          "interval": { "n": 1, "unit": "month" },
+          "dayConfigurable": false,
+          "weekPin": null,
+          "dayPin": null,
+          "lastAligned": "2026-03-05",
+          "notes": [],
+          "requirements": [],
+          "annualCadence": [],
+          "canBeOverdue": false
+        }
+      ]
+    },
+    "maintenance": {
+      "label": "Maintenance",
+      "chores": [
+        {
+          "id": "mow",
+          "name": "Mow",
+          "interval": { "n": 1, "unit": "week" },
+          "dayConfigurable": false,
+          "weekPin": null,
+          "dayPin": null,
+          "notes": [],
+          "requirements": [],
+          "annualCadence": [
+            { "startDate": "05-01", "interval": { "n": 1, "unit": "week" } },
+            { "startDate": "08-01", "interval": { "n": 2, "unit": "week" } },
+            { "startDate": "11-01", "status": "inactive" }
+          ],
+          "canBeOverdue": false
+        },
+        {
+          "id": "furnace-filter",
+          "name": "Furnace Filter",
+          "interval": { "n": 2, "unit": "month" },
+          "dayConfigurable": false,
+          "weekPin": null,
+          "dayPin": 1,
+          "lastAligned": "2026-02-01",
+          "notes": [],
+          "requirements": [],
+          "annualCadence": [],
+          "canBeOverdue": true
+        },
+        {
+          "id": "apply-bug-control",
+          "name": "Apply Bug Control",
+          "interval": { "n": 3, "unit": "month" },
+          "dayConfigurable": false,
+          "weekPin": null,
+          "dayPin": 1,
+          "lastAligned": "2025-10-01",
+          "notes": [
+            "Wear gloves",
+            "Use Talstar outdoors",
+            "Spread Ant Pellets around foundation"
+          ],
+          "requirements": [],
+          "annualCadence": [
+            { "startDate": "04-01", "interval": { "n": 3, "unit": "month" } },
+            { "startDate": "01-01", "status": "inactive" }
+          ],
+          "canBeOverdue": true
+        },
+        {
+          "id": "drain-water-heater",
+          "name": "Drain the Water Heater",
+          "interval": { "n": 6, "unit": "month" },
+          "dayConfigurable": false,
+          "weekPin": null,
+          "dayPin": 1,
+          "lastAligned": "2025-10-01",
+          "notes": [],
+          "requirements": [],
+          "annualCadence": [],
+          "canBeOverdue": true
+        },
+        {
+          "id": "deep-dusting",
+          "name": "Deep Dusting",
+          "interval": { "n": 3, "unit": "month" },
+          "dayConfigurable": false,
+          "weekPin": null,
+          "dayPin": null,
+          "lastAligned": "2026-01-05",
+          "notes": [],
+          "requirements": [
+            {
+              "id": "dust-ceiling",
+              "name": "Dust ceiling",
+              "interval": { "n": 3, "unit": "month" },
+              "lastAligned": "2026-01-05"
+            },
+            {
+              "id": "dust-walls",
+              "name": "Dust walls",
+              "interval": { "n": 3, "unit": "month" },
+              "lastAligned": "2026-01-05"
+            },
+            {
+              "id": "dust-baseboards",
+              "name": "Dust baseboards",
+              "interval": { "n": 3, "unit": "month" },
+              "lastAligned": "2026-01-05"
+            }
+          ],
+          "annualCadence": [],
+          "canBeOverdue": false
+        }
+      ]
+    }
+  }
 }

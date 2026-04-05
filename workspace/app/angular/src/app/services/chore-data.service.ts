@@ -1,33 +1,32 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { Chore, ChoreFile } from '../models/chore.model';
+import { ChoreData } from '../models/chore.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ChoreDataService {
-  private chores$ = new BehaviorSubject<Chore[]>([]);
+  private choreData$ = new BehaviorSubject<ChoreData | null>(null);
   private fileName$ = new BehaviorSubject<string>('');
 
   constructor() {}
 
-  /**
-   * Load chores from a file object.
-   */
   loadFromFile(file: File): Promise<void> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (event) => {
         try {
           const content = event.target?.result as string;
-          const choreFile: ChoreFile = JSON.parse(content);
+          const parsed = JSON.parse(content);
 
-          // Validate schema
-          if (!Array.isArray(choreFile.chores)) {
-            throw new Error('Invalid chore file: missing chores array');
+          if (!parsed.categories || typeof parsed.categories !== 'object') {
+            throw new Error('Invalid chore file: missing categories object');
+          }
+          if (!parsed.gridProperties) {
+            throw new Error('Invalid chore file: missing gridProperties');
           }
 
-          this.chores$.next(choreFile.chores);
+          this.choreData$.next(parsed as ChoreData);
           this.fileName$.next(file.name);
           resolve();
         } catch (error) {
@@ -39,34 +38,22 @@ export class ChoreDataService {
     });
   }
 
-  /**
-   * Get all loaded chores as an observable.
-   */
-  getChores(): Observable<Chore[]> {
-    return this.chores$.asObservable();
+  getChoreData(): Observable<ChoreData | null> {
+    return this.choreData$.asObservable();
   }
 
-  /**
-   * Get current chores synchronously.
-   */
-  getCurrentChores(): Chore[] {
-    return this.chores$.value;
+  getCurrentChoreData(): ChoreData | null {
+    return this.choreData$.value;
   }
 
-  /**
-   * Get the loaded file name.
-   */
   getFileName(): Observable<string> {
     return this.fileName$.asObservable();
   }
 
-  /**
-   * Export current chores as JSON file download.
-   */
   exportChores(): void {
-    const chores = this.chores$.value;
-    const choreFile: ChoreFile = { chores };
-    const json = JSON.stringify(choreFile, null, 2);
+    const data = this.choreData$.value;
+    if (!data) return;
+    const json = JSON.stringify(data, null, 2);
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -76,18 +63,9 @@ export class ChoreDataService {
     URL.revokeObjectURL(url);
   }
 
-  /**
-   * Clear loaded chores.
-   */
-  clear(): void {
-    this.chores$.next([]);
-    this.fileName$.next('');
-  }
-
-  /**
-   * Check if chores are loaded.
-   */
   hasChores(): boolean {
-    return this.chores$.value.length > 0;
+    const data = this.choreData$.value;
+    if (!data) return false;
+    return Object.values(data.categories).some(cat => cat.chores.length > 0);
   }
 }

@@ -1,4 +1,5 @@
 <div class="checklist">
+
   <!-- Daily Chores Table -->
   <div *ngIf="checklistData.daily.length > 0" class="section mb-5">
     <h2>Daily</h2>
@@ -20,7 +21,7 @@
                 </ul>
               </div>
             </td>
-            <td *ngFor="let dayIndex of [0, 1, 2, 3, 4, 5, 6]" class="text-center">
+            <td *ngFor="let dayIndex of [0,1,2,3,4,5,6]" class="text-center">
               <div class="form-check d-flex justify-content-center">
                 <input
                   class="form-check-input"
@@ -37,112 +38,51 @@
     </div>
   </div>
 
-  <!-- This Week Section -->
-  <div *ngIf="checklistData.thisWeek.length > 0" class="section mb-5">
-    <h2>This Week</h2>
-    <div class="chore-list">
-      <div *ngFor="let chore of checklistData.thisWeek" class="chore-item">
-        <div class="form-check">
-          <input
-            class="form-check-input"
-            type="checkbox"
-            [id]="'thisweek-' + chore.id"
-          />
-          <label class="form-check-label" [for]="'thisweek-' + chore.id">
-            <strong>{{ chore.name }}</strong>
-            <span *ngIf="chore.dayConfigurable && chore.lastAligned !== 'pending'" class="day-blank">
-              — day: _____
-            </span>
-            <span *ngIf="isOverdue(chore, weekStart)" class="badge bg-danger ms-2">
-              ⚠️ Overdue
-            </span>
-          </label>
-        </div>
+  <!-- Categories Grid -->
+  <div *ngIf="checklistData.categories.length > 0" class="row g-4 mb-4 categories-grid" [style.--print-cols]="printColumns">
+    <div *ngFor="let cat of checklistData.categories" [class]="'section ' + categoryColClass">
+      <h3 class="category-heading">{{ cat.label }}</h3>
+      <div class="chore-list">
 
-        <div *ngIf="chore.notes.length > 0" class="requirements">
-          <div *ngFor="let note of chore.notes; let i = index" class="form-check ms-3">
+        <div *ngFor="let chore of cat.chores" class="chore-item">
+          <div class="form-check">
             <input
               class="form-check-input"
               type="checkbox"
-              [id]="'note-' + chore.id + '-' + i"
+              [id]="'chore-' + chore.id"
             />
-            <label class="form-check-label" [for]="'note-' + chore.id + '-' + i">
-              {{ note }}
+            <label class="form-check-label" [for]="'chore-' + chore.id">
+              <span *ngIf="isPastDue(chore)" class="alert-indicator overdue">!</span>
+              <span *ngIf="isPending(chore)" class="alert-indicator pending">⚠</span>
+              <strong>{{ chore.name }}</strong>
+              <span *ngIf="chore.dayConfigurable"> — day: <span class="day-blank"></span></span>
+              <sup *ngIf="isPending(chore)" class="aligned-date">pending</sup>
+              <sup *ngIf="getLastAlignedDisplay(chore)" class="aligned-date">{{ getLastAlignedDisplay(chore) }}</sup>
             </label>
           </div>
-        </div>
 
-        <div
-          *ngIf="chore.requirements.length > 0"
-          class="requirements"
-        >
-          <div *ngFor="let req of chore.requirements" class="form-check ms-3">
-            <input
-              class="form-check-input"
-              type="checkbox"
-              [id]="'req-' + req.id"
-            />
-            <label class="form-check-label" [for]="'req-' + req.id">
-              {{ req.name }}
-            </label>
+          <div *ngIf="chore.notes.length > 0" class="ms-3">
+            <div *ngFor="let note of chore.notes; let i = index" class="form-check">
+              <input class="form-check-input" type="checkbox" [id]="'note-' + chore.id + '-' + i" />
+              <label class="form-check-label" [for]="'note-' + chore.id + '-' + i">{{ note }}</label>
+            </div>
+          </div>
+
+          <div *ngIf="chore.requirements.length > 0" class="ms-3">
+            <div *ngFor="let req of chore.requirements" class="form-check">
+              <input class="form-check-input" type="checkbox" [id]="'req-' + req.id" />
+              <label class="form-check-label" [for]="'req-' + req.id">{{ req.name }}</label>
+            </div>
           </div>
         </div>
+      </div>
+      <div class="additional-notes">
+        <p class="additional-notes-label">Additional Notes</p>
       </div>
     </div>
   </div>
 
-  <!-- Weekend Chores Section -->
-  <div *ngIf="checklistData.weekend.length > 0" class="section mb-5">
-    <h2>Weekend Chores</h2>
-    <div class="chore-list">
-      <div *ngFor="let chore of checklistData.weekend" class="chore-item">
-        <div class="form-check">
-          <input
-            class="form-check-input"
-            type="checkbox"
-            [id]="'weekend-' + chore.id"
-          />
-          <label class="form-check-label" [for]="'weekend-' + chore.id">
-            <strong>{{ chore.name }}</strong>
-            <span *ngIf="chore.dayConfigurable && chore.lastAligned !== 'pending'" class="day-blank">
-              — day: _____
-            </span>
-          </label>
-        </div>
-
-        <div *ngIf="chore.notes.length > 0" class="requirements">
-          <div *ngFor="let note of chore.notes; let i = index" class="form-check ms-3">
-            <input
-              class="form-check-input"
-              type="checkbox"
-              [id]="'note-' + chore.id + '-' + i"
-            />
-            <label class="form-check-label" [for]="'note-' + chore.id + '-' + i">
-              {{ note }}
-            </label>
-          </div>
-        </div>
-
-        <div
-          *ngIf="chore.requirements.length > 0"
-          class="requirements"
-        >
-          <div *ngFor="let req of chore.requirements" class="form-check ms-3">
-            <input
-              class="form-check-input"
-              type="checkbox"
-              [id]="'req-' + req.id"
-            />
-            <label class="form-check-label" [for]="'req-' + req.id">
-              {{ req.name }}
-            </label>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- On Deck Section (hidden in 4-week view) -->
+  <!-- On Deck (hidden in 4-week view) -->
   <div *ngIf="checklistData.onDeck.length > 0 && !isMultiWeekView" class="section mb-5 on-deck">
     <h2>On Deck</h2>
     <ul class="reference-list">
@@ -155,9 +95,9 @@
     </ul>
   </div>
 
-
   <!-- Empty State -->
-  <div *ngIf="checklistData.daily.length === 0 && checklistData.thisWeek.length === 0 && checklistData.weekend.length === 0" class="alert alert-info">
+  <div *ngIf="checklistData.daily.length === 0 && checklistData.categories.length === 0" class="alert alert-info">
     No chores scheduled for this week.
   </div>
+
 </div>

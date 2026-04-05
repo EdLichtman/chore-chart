@@ -21,6 +21,7 @@
 
       <div *ngIf="hasChores">
         <app-controls
+          class="d-print-none"
           [currentWeekStart]="currentWeekStart"
           [viewMode]="viewMode"
           (weekChanged)="onWeekChanged($event)"
@@ -28,27 +29,13 @@
           (export)="exportChores()"
         ></app-controls>
 
-        <!-- Past Due section — shown once before all weeks -->
-        <div *ngIf="pastDueChores.length > 0" class="week-block past-due-block">
-          <h2 class="mb-4 text-danger">Past Due</h2>
-          <div class="chore-list">
-            <div *ngFor="let chore of pastDueChores" class="chore-item">
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" [id]="'pastdue-' + chore.id" />
-                <label class="form-check-label" [for]="'pastdue-' + chore.id">
-                  <strong>{{ chore.name }}</strong>
-                </label>
-              </div>
-            </div>
-          </div>
-        </div>
-
         <div *ngFor="let weekStart of weekStarts; let i = index" class="week-block">
           <h2 *ngIf="viewMode === '4weeks'" [ngClass]="{'mt-5': i > 0, 'mt-0': i === 0, 'mb-4': true}">
             Week {{ i + 1 }} — {{ dateService.formatDateDisplay(weekStart) }}
           </h2>
+
           <app-checklist
-            [chores]="chores$ | async"
+            [choreData]="choreData$ | async"
             [weekStart]="weekStart"
             [isMultiWeekView]="viewMode === '4weeks'"
           ></app-checklist>

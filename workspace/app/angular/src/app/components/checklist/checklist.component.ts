@@ -1,16 +1,8 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Chore } from '../../models/chore.model';
-import { ChecklistService } from '../../services/checklist.service';
+import { Chore, DailyChore, ChoreData } from '../../models/chore.model';
+import { ChecklistService, GroupedChecklist } from '../../services/checklist.service';
 import { DateService } from '../../services/date.service';
-
-interface ChecklistData {
-  daily: Chore[];
-  thisWeek: Chore[];
-  weekend: Chore[];
-  onDeck: Chore[];
-  inactive: Chore[];
-}
 
 @Component({
   selector: 'app-checklist',
@@ -19,44 +11,31 @@ interface ChecklistData {
   templateUrl: './checklist.component.html',
   styleUrls: ['./checklist.component.scss'],
 })
-export class ChecklistComponent implements OnInit {
-  @Input() chores: Chore[] | null = [];
+export class ChecklistComponent implements OnChanges {
+  @Input() choreData: ChoreData | null = null;
   @Input() weekStart: Date = new Date();
   @Input() isMultiWeekView: boolean = false;
 
-  checklistData: ChecklistData = {
+  checklistData: GroupedChecklist = {
     daily: [],
-    thisWeek: [],
-    weekend: [],
+    categories: [],
     onDeck: [],
-    inactive: [],
   };
 
   weekDays = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-  checkboxState: Map<string, boolean[]> = new Map(); // For daily chore checkboxes
+  checkboxState: Map<string, boolean[]> = new Map();
 
   constructor(
     private checklistService: ChecklistService,
     private dateService: DateService
   ) {}
 
-  ngOnInit(): void {
-    this.updateChecklist();
-  }
-
   ngOnChanges(): void {
-    this.updateChecklist();
-  }
-
-  private updateChecklist(): void {
-    if (!this.chores) return;
-
+    if (!this.choreData) return;
     this.checklistData = this.checklistService.groupChoresForChecklist(
-      this.chores,
+      this.choreData,
       this.weekStart
     );
-
-    // Initialize checkbox state for daily chores (7 days)
     for (const chore of this.checklistData.daily) {
       if (!this.checkboxState.has(chore.id)) {
         this.checkboxState.set(chore.id, Array(7).fill(false));
@@ -64,8 +43,43 @@ export class ChecklistComponent implements OnInit {
     }
   }
 
-  isOverdue(chore: Chore, weekStart?: Date): boolean {
-    return this.checklistService.isOverdue(chore, weekStart);
+  get categoryColClass(): string {
+    const webCols = this.choreData?.gridProperties.web.columns;
+    const n = webCols === 'auto' || webCols == null
+      ? (() => {
+          const count = this.checklistData.categories.length;
+          return count <= 3 ? count : Math.ceil(Math.sqrt(count));
+        })()
+      : (webCols as number);
+    const bs = Math.floor(12 / n);
+    return `col-12 col-md-${bs}`;
+  }
+
+  get printColumns(): number {
+    const cols = this.choreData?.gridProperties.print.columns;
+    if (cols === 'auto' || cols == null) {
+      const count = this.checklistData.categories.length;
+      return count <= 3 ? count : Math.ceil(Math.sqrt(count));
+    }
+    return cols as number;
+  }
+
+  isOverdue(chore: Chore): boolean {
+    return this.checklistService.isOverdue(chore);
+  }
+
+  isPastDue(chore: Chore): boolean {
+    return this.checklistService.isPastDue(chore);
+  }
+
+  isPending(chore: Chore): boolean {
+    return chore.lastAligned === 'pending';
+  }
+
+  getLastAlignedDisplay(chore: Chore): string | null {
+    if (!chore.lastAligned || chore.lastAligned === 'pending') return null;
+    const date = new Date(chore.lastAligned);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   }
 
   getDueDate(chore: Chore): Date | null {

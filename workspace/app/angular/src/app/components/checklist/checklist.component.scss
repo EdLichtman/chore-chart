@@ -10,6 +10,8 @@
 
   .section {
     margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
 
     &.on-deck,
     &.inactive {
@@ -25,6 +27,22 @@
       .form-check-label {
         font-weight: 500;
         cursor: pointer;
+
+        .alert-indicator {
+          font-size: 0.7rem;
+          font-weight: 700;
+          margin-right: 0.25rem;
+
+          &.overdue { color: #dc3545; }
+          &.pending { color: #fd7e14; }
+        }
+
+        .aligned-date {
+          font-size: 0.65rem;
+          font-weight: 400;
+          color: #888;
+          margin-left: 0.25rem;
+        }
 
         strong {
           display: inline;
@@ -75,6 +93,19 @@
     }
   }
 
+  .additional-notes {
+    margin-top: auto;
+    padding-top: 0.75rem;
+
+    .additional-notes-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: #999;
+      margin-bottom: 0;
+    }
+  }
+
   .reference-list {
     list-style: none;
     padding-left: 0;
@@ -87,6 +118,21 @@
         color: #666;
         font-size: 0.9rem;
         margin-left: 0.5rem;
+      }
+    }
+  }
+
+  table {
+    @media print {
+      font-size: 0.8rem;
+
+      thead th {
+        font-size: 0.75rem;
+        padding: 0.25rem !important;
+      }
+
+      tbody td {
+        padding: 0.25rem !important;
       }
     }
   }
@@ -126,16 +172,80 @@
 
   // Print styles
   @media print {
-    .chore-list {
-      page-break-inside: avoid;
+    font-size: 0.85rem;
+
+    h2 {
+      font-size: 1rem;
+      padding-bottom: 0.25rem;
+      margin-bottom: 0.5rem;
+      border-bottom: 1px solid #e9ecef;
     }
 
-    .on-deck {
-      page-break-before: always;
+    h3.category-heading {
+      font-size: 0.9rem;
+    }
+
+    .section {
+      margin-bottom: 1rem;
+    }
+
+    .chore-list {
+      page-break-inside: avoid;
+
+      .chore-item {
+        margin-bottom: 0.75rem;
+        padding-left: 1rem;
+
+        .form-check-label {
+          font-size: 0.85rem;
+
+          strong {
+            font-size: 0.85rem;
+          }
+
+          .day-blank {
+            width: 40px;
+            padding: 0 3px;
+            margin: 0 2px;
+          }
+        }
+
+        .notes {
+          margin: 0.25rem 0 0.25rem 1rem;
+          font-size: 0.75rem;
+
+          ul {
+            padding-left: 1rem;
+          }
+
+          li {
+            margin-bottom: 0.1rem;
+          }
+        }
+      }
+
+      .form-check {
+        margin-bottom: 0.25rem;
+      }
     }
 
     .form-check-input {
       appearance: auto;
+      width: 1rem;
+      height: 1rem;
+    }
+
+    // Use CSS grid directly — Bootstrap's flexbox grid doesn't fire md breakpoints in print
+    .categories-grid {
+      display: grid !important;
+      grid-template-columns: repeat(var(--print-cols, 2), 1fr);
+      gap: 0.5rem;
+
+      > .section {
+        width: auto;
+        max-width: none;
+        flex: none;
+      }
     }
   }
 }

@@ -1,25 +1,4 @@
 services:
-  api:
-    build:
-      context: .
-      dockerfile: Dockerfile.api
-    container_name: chore-api
-    ports:
-      - "5000:5000"
-    environment:
-      - FLASK_ENV=development
-      - FLASK_APP=main.py
-    volumes:
-      - ./app/api:/app  # Hot reload for development
-    networks:
-      - chore-network
-    healthcheck:
-      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:5000/health')"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 5s
-
   angular:
     build:
       context: .
@@ -29,23 +8,18 @@ services:
       - "4200:80"
     networks:
       - chore-network
-    depends_on:
-      api:
-        condition: service_healthy
 
   nginx:
     image: nginx:alpine
     container_name: chore-proxy
     ports:
       - "80:80"
-      - "443:443"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx-empty.conf:/etc/nginx/conf.d/default.conf:ro
     networks:
       - chore-network
     depends_on:
-      - api
       - angular
 
 networks:

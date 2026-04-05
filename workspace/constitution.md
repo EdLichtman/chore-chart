@@ -80,7 +80,7 @@
   - **Thursday–Saturday:** *"The next week starts on Sunday [date]. Are you planning for this upcoming week, or for the previous week?"*
   - The user's answer sets the active week window for all subsequent steps.
 
-- [ ] **Rule 5 — Alignment Period:** Each chore has a stored **last-aligned date**. The **next due date** is calculated as: `last-aligned date + interval`. Daily chores (`n:1, unit:day`) are exempt — they render fresh each week as 7 checkboxes and do not require alignment tracking. Their `lastAligned` is always `null`.
+- [ ] **Rule 5 — Alignment Period:** Each chore has a stored **last-aligned date**. The **next due date** is calculated as: `last-aligned date + interval`. Daily chores (`n:1, unit:day`) are exempt — they render fresh each week as 7 checkboxes and do not require alignment tracking. Their `lastAligned` is always `null`. Weekly chores that show every week regardless also do not require `lastAligned`. When adding any chore with interval `n:2, unit:week` or longer, always ask: *"Do we need a last-aligned date for this, or does it show every week regardless?"*
 
 - [ ] **Rule 6 — Refresh Workflow Order:** When the user says *"let's refresh the chores"*:
   1. Ask: *"Would you like to align any periodic chores first?"*
