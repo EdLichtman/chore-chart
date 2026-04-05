@@ -1,0 +1,24 @@
+# Angular
+workspace/app/angular/node_modules/
+workspace/app/angular/dist/
+workspace/app/angular/.angular/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# C# / .NET
+bin/
+obj/
+
+# Docker dev override (local only)
+workspace/docker-compose.override.yml
+
+# Environment secrets
+.env
+!.env.example
+
+# Generated output
+checklist.md
+checklist.html

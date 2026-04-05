@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  claude:
+    build: .
+    container_name: claude-chores
+    volumes:
+      - ./workspace:/workspace
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    stdin_open: true
+    tty: true
+    # Uncomment to auto-run Claude chat on startup
+    # command: claude chat

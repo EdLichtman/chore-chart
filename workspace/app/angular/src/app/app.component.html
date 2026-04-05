@@ -1,0 +1,59 @@
+<div class="container-fluid py-4">
+  <div class="row mb-4 d-print-none">
+    <div class="col-12">
+      <h1 class="mb-3">Chore Checklist</h1>
+      <p class="text-muted" *ngIf="!hasChores">
+        Import a chores.json file to get started.
+      </p>
+      <p class="text-muted" *ngIf="hasChores">
+        <strong>File:</strong> {{ fileName$ | async }} | <strong>Week:</strong>
+        {{ dateService.formatDateDisplay(currentWeekStart) }}
+      </p>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <app-import
+        *ngIf="!hasChores"
+        (fileImported)="onFileImported()"
+      ></app-import>
+
+      <div *ngIf="hasChores">
+        <app-controls
+          [currentWeekStart]="currentWeekStart"
+          [viewMode]="viewMode"
+          (weekChanged)="onWeekChanged($event)"
+          (viewModeChanged)="onViewModeChanged($event)"
+          (export)="exportChores()"
+        ></app-controls>
+
+        <!-- Past Due section — shown once before all weeks -->
+        <div *ngIf="pastDueChores.length > 0" class="week-block past-due-block">
+          <h2 class="mb-4 text-danger">Past Due</h2>
+          <div class="chore-list">
+            <div *ngFor="let chore of pastDueChores" class="chore-item">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" [id]="'pastdue-' + chore.id" />
+                <label class="form-check-label" [for]="'pastdue-' + chore.id">
+                  <strong>{{ chore.name }}</strong>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngFor="let weekStart of weekStarts; let i = index" class="week-block">
+          <h2 *ngIf="viewMode === '4weeks'" [ngClass]="{'mt-5': i > 0, 'mt-0': i === 0, 'mb-4': true}">
+            Week {{ i + 1 }} — {{ dateService.formatDateDisplay(weekStart) }}
+          </h2>
+          <app-checklist
+            [chores]="chores$ | async"
+            [weekStart]="weekStart"
+            [isMultiWeekView]="viewMode === '4weeks'"
+          ></app-checklist>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
