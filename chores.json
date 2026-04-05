@@ -1,0 +1,563 @@
+{
+  "gridProperties": {
+    "print": { "columns": 3, "rows": 2 },
+    "web": { "columns": 3, "rows": 2 }
+  },
+  "daily": [
+    {
+      "id": "scoop-litter",
+      "name": "Scoop Litter",
+      "notes": ["This is scooping only — not a full litter replacement (see Cat Litter)"]
+    }
+  ],
+  "categories": {
+    "upstairs": {
+      "label": "Upstairs",
+      "chores": [
+        {
+          "id": "vacuum-upstairs",
+          "name": "Vacuum Upstairs",
+          "interval": { "n": 1, "unit": "week" },
+          "dayConfigurable": false,
+          "weekPin": null,
+          "dayPin": null,
+          "notes": [],
+          "requirements": [],
+          "annualCadence": [],
+          "canBeOverdue": false
+        },
+        {
+          "id": "cat-water-upstairs",
+          "name": "Clean Cat Water Upstairs",
+          "interval": { "n": 2, "unit": "week" },
+          "dayConfigurable": false,
+          "weekPin": null,
+          "dayPin": null,
+          "lastAligned": "2026-03-22",
+          "notes": [],
+          "requirements": [
+            {
+              "id": "cat-water-upstairs-filter",
+              "name": "Replace Filter",
+              "interval": { "n": 1, "unit": "month" },
+              "lastAligned": "2026-03-29"
+            }
+          ],
+          "annualCadence": [],
+          "canBeOverdue": false
+        }
+      ]
+    },
+    "downstairs": {
+      "label": "Downstairs",
+      "chores": [
+        {
+          "id": "vacuum-downstairs",
+          "name": "Vacuum Downstairs",
+          "interval": { "n": 1, "unit": "week" },
+          "dayConfigurable": false,
+          "weekPin": null,
+          "dayPin": null,
+          "notes": [],
+          "requirements": [],
+          "annualCadence": [],
+          "canBeOverdue": false
+        },
+        {
+          "id": "wipe-kitchen-surfaces",
+          "name": "Wipe Down Kitchen Surfaces",
+          "interval": { "n": 1, "unit": "week" },
+          "dayConfigurable": false,
+          "weekPin": null,
+          "dayPin": null,
+          "notes": [],
+          "requirements": [],
+          "annualCadence": [],
+          "canBeOverdue": false
+        },
+        {
+          "id": "sweep-kitchen",
+          "name": "Sweep Kitchen",
+          "interval": { "n": 1, "unit": "week" },
+          "dayConfigurable": false,
+          "weekPin": null,
+          "dayPin": null,
+          "notes": [],
+          "requirements": [],
+          "annualCadence": [],
+          "canBeOverdue": false
+        },
+        {
+          "id": "mop-first-floor",
+          "name": "Mop First Floor",
+          "interval": { "n": 2, "unit": "week" },
+          "dayConfigurable": false,
+          "weekPin": "even",
+          "dayPin": null,
+          "notes": [],
+          "requirements": [],
+          "annualCadence": [],
+          "canBeOverdue": false
+        },
+        {
+          "id": "cat-water-downstairs",
+          "name": "Clean Cat Water Downstairs",
+          "interval": { "n": 2, "unit": "week" },
+          "dayConfigurable": false,
+          "weekPin": null,
+          "dayPin": null,
+          "lastAligned": "2026-03-22",
+          "notes": [],
+          "requirements": [
+            {
+              "id": "cat-water-downstairs-filter",
+              "name": "Replace Filter",
+              "interval": { "n": 1, "unit": "month" },
+              "lastAligned": "2026-03-29"
+            }
+          ],
+          "annualCadence": [],
+          "canBeOverdue": false
+        }
+      ]
+    },
+    "other": {
+      "label": "Other",
+      "chores": [
+        {
+          "id": "cat-litter",
+          "name": "Replace Cat Litter",
+          "interval": { "n": 2, "unit": "week" },
+          "dayConfigurable": false,
+          "weekPin": null,
+          "dayPin": null,
+          "lastAligned": "2026-03-22",
+          "notes": [],
+          "requirements": [
+            { "id": "cat-litter-upstairs", "name": "Upstairs" },
+            { "id": "cat-litter-downstairs", "name": "Downstairs" }
+          ],
+          "annualCadence": [],
+          "canBeOverdue": false
+        },
+        {
+          "id": "refill-cat-food",
+          "name": "Refill Cat Food",
+          "interval": { "n": 1, "unit": "week" },
+          "dayConfigurable": false,
+          "weekPin": null,
+          "dayPin": null,
+          "notes": [],
+          "requirements": [],
+          "annualCadence": [],
+          "canBeOverdue": false
+        },
+        {
+          "id": "clean-little-trashes",
+          "name": "Clean Little Trashes Around House",
+          "interval": { "n": 2, "unit": "week" },
+          "dayConfigurable": false,
+          "weekPin": null,
+          "dayPin": null,
+          "lastAligned": "2026-04-01",
+          "notes": [],
+          "requirements": [],
+          "annualCadence": [],
+          "canBeOverdue": false
+        },
+        {
+          "id": "laundry",
+          "name": "Laundry",
+          "interval": { "n": 1, "unit": "week" },
+          "dayConfigurable": true,
+          "weekPin": null,
+          "dayPin": null,
+          "notes": [],
+          "requirements": [],
+          "annualCadence": [],
+          "canBeOverdue": false
+        },
+        {
+          "id": "food-plan",
+          "name": "Food Plan",
+          "interval": { "n": 1, "unit": "week" },
+          "dayConfigurable": true,
+          "weekPin": null,
+          "dayPin": null,
+          "notes": [],
+          "requirements": [
+            { "id": "food-plan-meal-plan", "name": "Meal Plan" },
+            { "id": "food-plan-meal-prep", "name": "Meal Prep" }
+          ],
+          "annualCadence": [],
+          "canBeOverdue": false
+        },
+        {
+          "id": "refill-birdseed",
+          "name": "Refill Birdseed",
+          "interval": { "n": 1, "unit": "week" },
+          "dayConfigurable": false,
+          "weekPin": null,
+          "dayPin": null,
+          "notes": [],
+          "requirements": [],
+          "annualCadence": [],
+          "canBeOverdue": false
+        },
+        {
+          "id": "dusting",
+          "name": "Dusting",
+          "interval": { "n": 1, "unit": "month" },
+          "dayConfigurable": false,
+          "weekPin": null,
+          "dayPin": null,
+          "lastAligned": "2026-03-05",
+          "notes": [],
+          "requirements": [],
+          "annualCadence": [],
+          "canBeOverdue": false
+        }
+      ]
+    },
+    "maintenance": {
+      "label": "Maintenance",
+      "chores": [
+        {
+          "id": "water-softener-salt",
+          "name": "Check Water Softener Salt",
+          "interval": { "n": 1, "unit": "month" },
+          "dayConfigurable": false,
+          "weekPin": null,
+          "dayPin": null,
+          "notes": [],
+          "requirements": [],
+          "annualCadence": [],
+          "canBeOverdue": true
+        },
+        {
+          "id": "furnace-filter",
+          "name": "Furnace Filter",
+          "interval": { "n": 2, "unit": "month" },
+          "dayConfigurable": false,
+          "weekPin": null,
+          "dayPin": 1,
+          "lastAligned": "2026-02-01",
+          "notes": [],
+          "requirements": [],
+          "annualCadence": [],
+          "canBeOverdue": true
+        },
+        {
+          "id": "bleach-furnace-drain",
+          "name": "Bleach Furnace Drain Pipe",
+          "interval": { "n": 6, "unit": "month" },
+          "dayConfigurable": false,
+          "weekPin": null,
+          "dayPin": 1,
+          "lastAligned": "2025-10-01",
+          "notes": [],
+          "requirements": [],
+          "annualCadence": [],
+          "canBeOverdue": true
+        },
+        {
+          "id": "drain-water-heater",
+          "name": "Drain the Water Heater",
+          "interval": { "n": 6, "unit": "month" },
+          "dayConfigurable": false,
+          "weekPin": null,
+          "dayPin": 1,
+          "lastAligned": "2025-10-01",
+          "notes": [],
+          "requirements": [
+            { "id": "water-heater-turn-off-water", "name": "Turn off water" },
+            { "id": "water-heater-pilot", "name": "Set to Pilot" },
+            { "id": "water-heater-open-valve", "name": "Open Release Valve" },
+            { "id": "water-heater-close-valve", "name": "Close Release Valve" },
+            { "id": "water-heater-turn-on-water", "name": "Turn on Water" },
+            { "id": "water-heater-ensure-on", "name": "Ensure Heater back on" }
+          ],
+          "annualCadence": [],
+          "canBeOverdue": true
+        },
+        {
+          "id": "deep-dusting",
+          "name": "Deep Dusting",
+          "interval": { "n": 3, "unit": "month" },
+          "dayConfigurable": false,
+          "weekPin": null,
+          "dayPin": null,
+          "lastAligned": "2026-01-05",
+          "notes": [],
+          "requirements": [
+            {
+              "id": "dust-ceiling",
+              "name": "Dust ceiling",
+              "interval": { "n": 3, "unit": "month" },
+              "lastAligned": "2026-01-05"
+            },
+            {
+              "id": "dust-walls",
+              "name": "Dust walls",
+              "interval": { "n": 3, "unit": "month" },
+              "lastAligned": "2026-01-05"
+            },
+            {
+              "id": "dust-baseboards",
+              "name": "Dust baseboards",
+              "interval": { "n": 3, "unit": "month" },
+              "lastAligned": "2026-01-05"
+            }
+          ],
+          "annualCadence": [],
+          "canBeOverdue": false
+        }
+      ]
+    },
+    "yard": {
+      "label": "Yard",
+      "chores": [
+        {
+          "id": "garden-hoses-spring",
+          "name": "Garden Hoses — Spring",
+          "interval": { "n": 1, "unit": "year" },
+          "dayConfigurable": false,
+          "weekPin": null,
+          "dayPin": null,
+          "lastAligned": "2025-05-01",
+          "notes": [],
+          "requirements": [
+            { "id": "hoses-spring-main", "name": "Turn on outdoor hose main in basement" },
+            { "id": "hoses-spring-front", "name": "Connect front outdoor hose" },
+            { "id": "hoses-spring-back", "name": "Connect back outdoor hose" }
+          ],
+          "annualCadence": [
+            { "startDate": "01-01", "status": "inactive" },
+            { "startDate": "05-01", "interval": { "n": 1, "unit": "year" } },
+            { "startDate": "06-01", "status": "inactive" }
+          ],
+          "canBeOverdue": true
+        },
+        {
+          "id": "garden-hoses-fall",
+          "name": "Garden Hoses — Fall",
+          "interval": { "n": 1, "unit": "year" },
+          "dayConfigurable": false,
+          "weekPin": null,
+          "dayPin": null,
+          "lastAligned": "2025-11-01",
+          "notes": [],
+          "requirements": [
+            { "id": "hoses-fall-main", "name": "Shut off outdoor hose main in basement" },
+            { "id": "hoses-fall-front", "name": "Disconnect front outdoor hose" },
+            { "id": "hoses-fall-back", "name": "Disconnect back outdoor hose" },
+            { "id": "hoses-fall-garage", "name": "Put hoses in garage" }
+          ],
+          "annualCadence": [
+            { "startDate": "01-01", "status": "inactive" },
+            { "startDate": "11-01", "interval": { "n": 1, "unit": "year" } },
+            { "startDate": "12-01", "status": "inactive" }
+          ],
+          "canBeOverdue": true
+        },
+        {
+          "id": "prune-trees",
+          "name": "Prune Trees",
+          "interval": { "n": 1, "unit": "year" },
+          "dayConfigurable": false,
+          "weekPin": null,
+          "dayPin": null,
+          "lastAligned": "2025-02-01",
+          "notes": [],
+          "requirements": [],
+          "annualCadence": [
+            { "startDate": "01-01", "status": "inactive" },
+            { "startDate": "02-01", "interval": { "n": 1, "unit": "year" } },
+            { "startDate": "04-01", "status": "inactive" }
+          ],
+          "canBeOverdue": true
+        },
+        {
+          "id": "cut-down-gardens",
+          "name": "Cut Down Gardens",
+          "interval": { "n": 1, "unit": "year" },
+          "dayConfigurable": false,
+          "weekPin": null,
+          "dayPin": null,
+          "lastAligned": "2025-11-01",
+          "notes": [],
+          "requirements": [],
+          "annualCadence": [
+            { "startDate": "01-01", "status": "inactive" },
+            { "startDate": "11-01", "interval": { "n": 1, "unit": "year" } },
+            { "startDate": "12-01", "status": "inactive" }
+          ],
+          "canBeOverdue": true
+        },
+        {
+          "id": "apply-mulch",
+          "name": "PreSeason",
+          "interval": { "n": 1, "unit": "year" },
+          "dayConfigurable": false,
+          "weekPin": null,
+          "dayPin": null,
+          "lastAligned": "2025-04-15",
+          "notes": [],
+          "requirements": [
+            { "id": "preseason-mulch", "name": "Apply new mulch" },
+            { "id": "preseason-crabgrass", "name": "Spread crabgrass preventer with fertilizer" }
+          ],
+          "annualCadence": [
+            { "startDate": "01-01", "status": "inactive" },
+            { "startDate": "04-15", "interval": { "n": 1, "unit": "year" } },
+            { "startDate": "05-15", "status": "inactive" }
+          ],
+          "canBeOverdue": true
+        },
+        {
+          "id": "spread-milorganite",
+          "name": "Spread Milorganite",
+          "interval": { "n": 2, "unit": "month" },
+          "dayConfigurable": false,
+          "weekPin": null,
+          "dayPin": null,
+          "lastAligned": "2025-10-01",
+          "notes": [],
+          "requirements": [],
+          "annualCadence": [
+            { "startDate": "01-01", "status": "inactive" },
+            { "startDate": "04-01", "interval": { "n": 2, "unit": "month" } },
+            { "startDate": "11-01", "status": "inactive" }
+          ],
+          "canBeOverdue": true
+        },
+        {
+          "id": "mow",
+          "name": "Mow",
+          "interval": { "n": 1, "unit": "week" },
+          "dayConfigurable": false,
+          "weekPin": null,
+          "dayPin": null,
+          "notes": [],
+          "requirements": [],
+          "annualCadence": [
+            { "startDate": "05-01", "interval": { "n": 1, "unit": "week" } },
+            { "startDate": "08-01", "interval": { "n": 2, "unit": "week" } },
+            { "startDate": "11-01", "status": "inactive" }
+          ],
+          "canBeOverdue": false
+        },
+        {
+          "id": "apply-bug-control",
+          "name": "Apply Bug Control",
+          "interval": { "n": 3, "unit": "month" },
+          "dayConfigurable": false,
+          "weekPin": null,
+          "dayPin": 1,
+          "lastAligned": "2025-10-01",
+          "notes": [],
+          "requirements": [
+            { "id": "bug-control-gloves", "name": "Wear gloves" },
+            { "id": "bug-control-talstar", "name": "Use Talstar outdoors" },
+            { "id": "bug-control-ant-pellets", "name": "Spread Ant Pellets around foundation" }
+          ],
+          "annualCadence": [
+            { "startDate": "01-01", "status": "inactive" },
+            { "startDate": "04-01", "interval": { "n": 3, "unit": "month" } }
+          ],
+          "canBeOverdue": true
+        },
+        {
+          "id": "spring-maintenance",
+          "name": "Spring Maintenance",
+          "interval": { "n": 1, "unit": "year" },
+          "dayConfigurable": false,
+          "weekPin": null,
+          "dayPin": null,
+          "lastAligned": "2025-05-01",
+          "notes": [],
+          "requirements": [
+            { "id": "spring-sharpen-mower", "name": "Sharpen push mower blade" },
+            { "id": "spring-oil-mower", "name": "Check/change oil in push mower" },
+            { "id": "spring-sharpen-riding", "name": "Sharpen riding mower blades" },
+            { "id": "spring-oil-riding", "name": "Check/change oil in riding mower" },
+            { "id": "spring-riding-air-filter", "name": "Clean riding mower engine filter" },
+            { "id": "spring-riding-grease", "name": "Grease fittings on riding mower" },
+            { "id": "spring-riding-belts", "name": "Check belts for dryness/cracking" },
+            { "id": "spring-riding-tires", "name": "Check tire pressure on riding mower" },
+            { "id": "spring-stabilizer-snowblower", "name": "Add stabilizer to snow blower and run for a few seconds" }
+          ],
+          "annualCadence": [
+            { "startDate": "04-15", "interval": { "n": 1, "unit": "year" } },
+            { "startDate": "06-01", "status": "inactive" }
+          ],
+          "canBeOverdue": true
+        },
+        {
+          "id": "summerize-house",
+          "name": "Summerize House",
+          "interval": { "n": 1, "unit": "year" },
+          "dayConfigurable": false,
+          "weekPin": null,
+          "dayPin": null,
+          "lastAligned": "2025-05-01",
+          "notes": [],
+          "requirements": [
+            { "id": "summerize-fans", "name": "Flip ceiling fans to bronze (clockwise)" },
+            { "id": "summerize-basement-air", "name": "Close basement air release" },
+            { "id": "summerize-floor-return", "name": "Close floor return — 2nd floor guest bedroom" }
+          ],
+          "annualCadence": [
+            { "startDate": "01-01", "status": "inactive" },
+            { "startDate": "05-01", "interval": { "n": 1, "unit": "year" } },
+            { "startDate": "06-01", "status": "inactive" }
+          ],
+          "canBeOverdue": true
+        },
+        {
+          "id": "winterize-house",
+          "name": "Winterize House",
+          "interval": { "n": 1, "unit": "year" },
+          "dayConfigurable": false,
+          "weekPin": null,
+          "dayPin": null,
+          "lastAligned": "2025-11-01",
+          "notes": [],
+          "requirements": [
+            { "id": "winterize-fans", "name": "Flip ceiling fans to silver (counter-clockwise)" },
+            { "id": "winterize-basement-air", "name": "Open basement air release" },
+            { "id": "winterize-floor-return", "name": "Open floor return — 2nd floor guest bedroom" },
+            { "id": "winterize-weatherstripping", "name": "Add weatherstripping to doors and windows" }
+          ],
+          "annualCadence": [
+            { "startDate": "01-01", "status": "inactive" },
+            { "startDate": "11-01", "interval": { "n": 1, "unit": "year" } },
+            { "startDate": "12-01", "status": "inactive" }
+          ],
+          "canBeOverdue": true
+        },
+        {
+          "id": "winter-maintenance",
+          "name": "Winter Maintenance",
+          "interval": { "n": 1, "unit": "year" },
+          "dayConfigurable": false,
+          "weekPin": null,
+          "dayPin": null,
+          "lastAligned": "2025-11-01",
+          "notes": [],
+          "requirements": [
+            { "id": "winter-stabilizer-mower", "name": "Add stabilizer to push mower and run for a few seconds" },
+            { "id": "winter-stabilizer-riding", "name": "Add stabilizer to riding mower and run for a few seconds" },
+            { "id": "winter-check-snowblower", "name": "Check/service snow blower" },
+            { "id": "winter-snowblower-carb", "name": "Clean snow blower carburetor" }
+          ],
+          "annualCadence": [
+            { "startDate": "10-15", "interval": { "n": 1, "unit": "year" } },
+            { "startDate": "12-01", "status": "inactive" }
+          ],
+          "canBeOverdue": true
+        }
+      ]
+    }
+  }
+}

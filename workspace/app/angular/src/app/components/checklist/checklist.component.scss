@@ -28,6 +28,19 @@
         font-weight: 500;
         cursor: pointer;
 
+        .chore-name {
+          display: block;
+        }
+
+        .chore-sub {
+          display: block;
+          font-size: 0.72rem;
+          font-weight: 400;
+          color: #888;
+          margin-top: 0.15rem;
+          line-height: 1.4;
+        }
+
         .alert-badge {
           display: inline-flex;
           align-items: center;
@@ -46,11 +59,11 @@
           &.pending { color: #fd7e14; }
         }
 
-        .aligned-date {
-          font-size: 0.65rem;
-          font-weight: 400;
-          color: #888;
-          margin-left: 0.25rem;
+        .requirements-indicator {
+          font-size: 0.65em;
+          color: #0d6efd;
+          margin-left: 0.35em;
+          vertical-align: middle;
         }
 
         strong {

@@ -33,8 +33,4 @@ body {
   .week-block {
     page-break-before: auto;
   }
-
-  .week-block:not(:first-child) {
-    page-break-before: always;
-  }
 }

@@ -22,4 +22,21 @@ h1 {
     font-size: 0.8rem;
     margin-bottom: 0.25rem;
   }
+
+  .requirements-block {
+    page-break-before: always;
+    zoom: 0.5;
+  }
+
+  .weeks-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    page-break-inside: avoid;
+
+    .week-block {
+      zoom: 0.5;
+      overflow: hidden;
+    }
+  }
 }

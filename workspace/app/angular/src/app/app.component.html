@@ -29,17 +29,27 @@
           (export)="exportChores()"
         ></app-controls>
 
-        <div *ngFor="let weekStart of weekStarts; let i = index" class="week-block">
-          <h2 *ngIf="viewMode === '4weeks'" [ngClass]="{'mt-5': i > 0, 'mt-0': i === 0, 'mb-4': true}">
-            Week {{ i + 1 }} — {{ dateService.formatDateDisplay(weekStart) }}
-          </h2>
+        <div [class]="viewMode === '4weeks' ? 'weeks-grid' : ''">
+          <div *ngFor="let weekStart of weekStarts; let i = index" class="week-block">
+            <h2 *ngIf="viewMode === '4weeks'" class="week-heading">
+              Week {{ i + 1 }} — {{ dateService.formatDateDisplay(weekStart) }}
+            </h2>
 
-          <app-checklist
-            [choreData]="choreData$ | async"
-            [weekStart]="weekStart"
-            [isMultiWeekView]="viewMode === '4weeks'"
-          ></app-checklist>
+            <app-checklist
+              [choreData]="choreData$ | async"
+              [weekStart]="weekStart"
+              [isMultiWeekView]="viewMode === '4weeks'"
+            ></app-checklist>
+          </div>
         </div>
+
+        <!-- Requirements appendix — page 2 (1-week) or page 5 (4-week) -->
+        <ng-container *ngIf="choreData$ | async as choreData">
+          <div class="week-block requirements-block">
+            <h2 [ngClass]="{'mt-5': true, 'mb-4': true}">Requirements</h2>
+            <app-requirements [choreData]="choreData" [weekStarts]="weekStarts"></app-requirements>
+          </div>
+        </ng-container>
       </div>
     </div>
   </div>

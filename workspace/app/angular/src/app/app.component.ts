@@ -5,11 +5,12 @@ import { DateService } from './services/date.service';
 import { ImportComponent } from './components/import/import.component';
 import { ChecklistComponent } from './components/checklist/checklist.component';
 import { ControlsComponent } from './components/controls/controls.component';
+import { RequirementsComponent } from './components/requirements/requirements.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, ImportComponent, ChecklistComponent, ControlsComponent],
+  imports: [CommonModule, ImportComponent, ChecklistComponent, ControlsComponent, RequirementsComponent],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
 })

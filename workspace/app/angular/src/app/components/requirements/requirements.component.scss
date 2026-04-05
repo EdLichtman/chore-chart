@@ -1,0 +1,88 @@
+.requirements-page {
+  .section {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 2rem;
+  }
+
+  .category-heading {
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 0.4rem;
+    margin-bottom: 0.75rem;
+    color: #333;
+  }
+
+  .chore-list {
+    .chore-item {
+      margin-bottom: 1.25rem;
+      padding-left: 1.5rem;
+
+      strong {
+        font-size: 0.95rem;
+        display: block;
+        margin-bottom: 0.25rem;
+      }
+    }
+  }
+
+  .req-list {
+    .form-check {
+      margin-bottom: 0.4rem;
+
+      .form-check-input {
+        appearance: none;
+        width: 1.1rem;
+        height: 1.1rem;
+        border: 2px solid #dee2e6;
+        border-radius: 0.2rem;
+        cursor: pointer;
+        flex-shrink: 0;
+
+        &:checked {
+          background-color: #0d6efd;
+          border-color: #0d6efd;
+          background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e");
+          background-position: center;
+          background-repeat: no-repeat;
+          background-size: 100% 100%;
+        }
+      }
+
+      .form-check-label {
+        font-size: 0.875rem;
+        cursor: pointer;
+      }
+    }
+  }
+
+  @media print {
+    .category-heading { font-size: 0.9rem; }
+
+    .chore-list .chore-item {
+      margin-bottom: 0.75rem;
+      padding-left: 1rem;
+
+      strong { font-size: 0.85rem; }
+    }
+
+    .req-list .form-check-input {
+      appearance: auto;
+      width: 0.9rem;
+      height: 0.9rem;
+    }
+
+    .categories-grid {
+      display: grid !important;
+      grid-template-columns: repeat(var(--print-cols, 2), 1fr);
+      gap: 0.5rem;
+
+      > .section {
+        width: auto;
+        max-width: none;
+        flex: none;
+      }
+    }
+  }
+}
