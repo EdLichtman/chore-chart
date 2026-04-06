@@ -32,7 +32,7 @@
         <div [class]="viewMode === '4weeks' ? 'weeks-grid' : ''">
           <div *ngFor="let weekStart of weekStarts; let i = index" class="week-block">
             <h2 *ngIf="viewMode === '4weeks'" class="week-heading">
-              Week {{ i + 1 }} — {{ dateService.formatDateDisplay(weekStart) }}
+              Week {{ i + 1 }} — {{ dateService.formatDateDisplay(weekStart) }} through {{ dateService.formatDateDisplay(dateService.addDays(weekStart, 6)) }}
             </h2>
 
             <app-checklist

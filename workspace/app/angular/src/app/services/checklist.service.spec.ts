@@ -7,7 +7,6 @@ import { Chore, ChoreData } from '../models/chore.model';
 function makeChore(overrides: Partial<Chore> & { id: string; name: string }): Chore {
   return {
     interval: { n: 1, unit: 'week' },
-    dayConfigurable: false,
     weekPin: null,
     dayPin: null,
     notes: [],

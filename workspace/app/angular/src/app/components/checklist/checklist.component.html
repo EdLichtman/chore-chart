@@ -39,12 +39,12 @@
   </div>
 
   <!-- Categories Grid -->
-  <div *ngIf="checklistData.categories.length > 0" class="row g-4 mb-4 categories-grid" [style.--print-cols]="printColumns">
+  <div *ngIf="checklistData.categories.length > 0" class="row g-1 mb-2 categories-grid" [style.--print-cols]="printColumns">
     <div *ngFor="let cat of checklistData.categories" [class]="'section ' + categoryColClass">
       <h3 class="category-heading">{{ cat.label }}</h3>
       <div class="chore-list">
 
-        <div *ngFor="let chore of cat.chores" class="chore-item">
+        <div *ngFor="let chore of getNonOverdueChores(cat.chores)" class="chore-item">
           <div class="form-check">
             <input
               class="form-check-input"
@@ -54,38 +54,42 @@
             <label class="form-check-label" [for]="'chore-' + chore.id">
               <span class="chore-name">
                 <strong>{{ chore.name }}</strong>
-                <span *ngIf="chore.dayConfigurable"> — day: <span class="day-blank"></span></span>
               </span>
-              <span *ngIf="isPending(chore)" class="chore-sub">
-                <span class="alert-badge pending"><i class="fa-solid fa-question"></i></span>
-                pending
-                <span class="alert-badge pending trailing"><i class="fa-solid fa-question"></i></span>
+              <span *ngIf="chore.requirements.length > 0" class="chore-sub see-manual">
+                <strong><em>(See Manual)</em></strong>
               </span>
+              <span *ngIf="isPending(chore)" class="chore-sub">pending</span>
               <span *ngIf="!isPending(chore) && getLastAlignedDisplay(chore)" class="chore-sub">
-                <ng-container *ngIf="isPastDue(chore) && isCurrentOrPastWeek">
-                  <span class="alert-badge overdue"><i class="fa-solid fa-exclamation"></i></span>
-                </ng-container>
                 {{ getLastAlignedDisplay(chore) }}
-                <ng-container *ngIf="isPastDue(chore) && isCurrentOrPastWeek">
-                  <span class="alert-badge overdue trailing"><i class="fa-solid fa-exclamation"></i></span>
-                </ng-container>
-              </span>
-              <span *ngIf="chore.requirements.length > 0" class="chore-sub">
-                <i class="fa-solid fa-list-check requirements-indicator" title="See requirements page"></i>
               </span>
             </label>
           </div>
 
-          <div *ngIf="chore.notes.length > 0" class="ms-3">
-            <div *ngFor="let note of chore.notes; let i = index" class="form-check">
-              <input class="form-check-input" type="checkbox" [id]="'note-' + chore.id + '-' + i" />
-              <label class="form-check-label" [for]="'note-' + chore.id + '-' + i">{{ note }}</label>
+          <ul *ngIf="chore.notes.length > 0" class="chore-notes">
+            <li *ngFor="let note of chore.notes" class="chore-note">{{ note }}</li>
+          </ul>
+        </div>
+      </div>
+
+      <div *ngIf="getOverdueChores(cat.chores).length > 0" class="overdue-section">
+        <h4 class="overdue-heading">Overdue</h4>
+        <div class="chore-list">
+          <div *ngFor="let chore of getOverdueChores(cat.chores)" class="chore-item">
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                [id]="'overdue-' + chore.id"
+              />
+              <label class="form-check-label overdue-label" [for]="'overdue-' + chore.id">
+                <span class="chore-name"><strong>{{ chore.name }}</strong></span>
+                <span *ngIf="getLastAlignedDisplay(chore)" class="chore-sub">
+                  {{ getLastAlignedDisplay(chore) }}
+                </span>
+              </label>
             </div>
           </div>
         </div>
-      </div>
-      <div class="additional-notes">
-        <p class="additional-notes-label">Additional Notes</p>
       </div>
     </div>
   </div>

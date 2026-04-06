@@ -23,20 +23,28 @@ h1 {
     margin-bottom: 0.25rem;
   }
 
+  .week-heading {
+    font-size: 0.7rem !important;
+    margin: 0 0 0.15rem !important;
+  }
+
   .requirements-block {
     page-break-before: always;
     zoom: 0.5;
   }
 
   .weeks-grid {
-    display: grid !important;
+    display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 0;
-    page-break-inside: avoid;
+    gap: 0.5rem;
+    align-items: start;
 
     .week-block {
-      zoom: 0.5;
-      overflow: hidden;
+      break-inside: avoid;
+
+      &:nth-child(2) {
+        break-after: page;
+      }
     }
   }
 }

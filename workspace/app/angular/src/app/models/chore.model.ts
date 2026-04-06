@@ -20,7 +20,6 @@ export interface Chore {
   id: string;
   name: string;
   interval: Interval;
-  dayConfigurable: boolean;
   weekPin: 'odd' | 'even' | null;
   dayPin: 1 | 15 | null;
   lastAligned?: string | 'pending' | null;

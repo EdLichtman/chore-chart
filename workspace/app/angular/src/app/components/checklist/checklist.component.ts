@@ -87,7 +87,17 @@ export class ChecklistComponent implements OnChanges {
   getLastAlignedDisplay(chore: Chore): string | null {
     if (!chore.lastAligned || chore.lastAligned === 'pending') return null;
     const date = new Date(chore.lastAligned);
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    return 'Last: ' + date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  getNonOverdueChores(chores: Chore[]): Chore[] {
+    if (!this.isCurrentOrPastWeek) return chores;
+    return chores.filter(c => !this.isPastDue(c));
+  }
+
+  getOverdueChores(chores: Chore[]): Chore[] {
+    if (!this.isCurrentOrPastWeek) return [];
+    return chores.filter(c => this.isPastDue(c));
   }
 
   getDueDate(chore: Chore): Date | null {

@@ -204,8 +204,7 @@ function New-Checklist {
         $html += "        <div class=`"section`">`n            <h3>This Week</h3>`n            <ul>`n"
         foreach ($chore in $thisWeekChores) {
             $name = Escape-Html $chore.name
-            $dayStr = if ($chore.dayConfigurable) { ' — day: <span class="day-fill"></span>' } else { '' }
-            $html += "                <li><input type=`"checkbox`"> $name$dayStr</li>`n"
+            $html += "                <li><input type=`"checkbox`"> $name</li>`n"
 
             foreach ($note in $chore.notes) {
                 $noteHtml = Escape-Html $note

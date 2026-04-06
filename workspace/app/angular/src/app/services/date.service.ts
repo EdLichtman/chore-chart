@@ -6,21 +6,24 @@ import { Interval } from '../models/chore.model';
 })
 export class DateService {
   /**
-   * Calculate the Sunday (week anchor) for a given date.
-   * Uses Wed/Thu boundary: Sun-Wed is current week, Thu-Sat is next week.
+   * Calculate the Monday (week anchor) for a given date.
+   * Uses Thu/Fri boundary: Mon-Thu is current week, Fri-Sun is next week.
    */
   getWeekAnchor(date: Date = new Date()): Date {
     const d = new Date(date);
     d.setHours(0, 0, 0, 0);
-    const dayOfWeek = d.getDay(); // 0 = Sun, 6 = Sat
+    const dayOfWeek = d.getDay(); // 0 = Sun, 1 = Mon, ..., 6 = Sat
 
-    // If it's Sun-Wed (0-3), anchor to this Sunday
-    // If it's Thu-Sat (4-6), anchor to next Sunday
+    // Convert to Mon-based index: Mon=0, Tue=1, ..., Sun=6
+    const monBased = (dayOfWeek + 6) % 7;
+
+    // If it's Mon-Thu (monBased 0-3), anchor to this Monday
+    // If it's Fri-Sun (monBased 4-6), anchor to next Monday
     let daysToSubtract;
-    if (dayOfWeek >= 0 && dayOfWeek <= 3) {
-      daysToSubtract = dayOfWeek;
+    if (monBased <= 3) {
+      daysToSubtract = monBased;
     } else {
-      daysToSubtract = dayOfWeek - 7;
+      daysToSubtract = monBased - 7;
     }
 
     const anchor = new Date(d);

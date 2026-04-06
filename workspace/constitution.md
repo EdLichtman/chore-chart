@@ -18,8 +18,6 @@
 
 - [ ] **Rule 10 — Non-Weekend Chores Have No Default Day:** A chore not flagged as a weekend chore may be completed on any day of the week. No day is implied or enforced.
 
-- [ ] **Rule 11 — Day Designation for Configurable Chores:** A chore marked `dayConfigurable: true` includes a `day: ____` blank on the printed checklist, allowing the user to assign a specific day at the start of the week. When a chore is added, ask: *"Is this something you assign to a specific day of the week?"* Default to `true` for weekly chores, but allow override for any interval.
-
 - [ ] **Rule 19 — Monthly Day Pinning:** A chore with `unit:month` (any `n`) always has a pinned day of month. When the chore is added, ask: *"Would you like this at the beginning or middle of the month?"* The answer maps to either the **1st** or the **15th**. This is stored on the chore file and shown on the checklist.
 
 - [ ] **Rule 20 — Natural Language Interval Input:** When a user describes a chore's frequency in natural language (e.g., "every month and a half", "every other month", "twice a month"), the system converts it to the nearest clean `n` + `unit` representation and confirms: *"I'll set that as [interval] — does that sound right?"*
@@ -47,7 +45,6 @@
   - `name` — verbatim chore name (Rule 21)
   - `interval` — `n` + `unit` (Rule 2)
   - `weekend` — `true` / `false` (Rule 8)
-  - `dayConfigurable` — `true` / `false`; whether the user assigns a specific day at the start of the week (Rule 11)
   - `dayPin` — **required** for `unit:month` chores (1 or 15); `null` for all others (Rule 19)
   - `weekPin` — **required** for `n:2, unit:week` location-split pairs (`"odd"` or `"even"`); `null` for all others (Rule 23)
   - `lastAligned` — ISO date string or `"pending"` if not yet aligned (Rule 5)
@@ -99,7 +96,6 @@
   - Header: `Week of: [Sunday date]`
   - **Daily** — table with columns for each day of the week (S M T W T F S) and one row per daily chore
   - **This Week** — non-weekend chores due within the active week window, grouped by frequency (e.g., "Weekly", "Every 2 Weeks", "Monthly"):
-    - Chores with `dayConfigurable: true` include a `day: ____` blank
     - Notes render as indented bullet points beneath the chore
     - Requirements render as indented checkboxes beneath the parent chore, only when due
   - **Weekend Chores** — weekend chores due within the active week window, grouped by frequency

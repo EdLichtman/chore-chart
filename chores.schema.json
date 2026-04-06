@@ -106,13 +106,12 @@
 
     "chore": {
       "type": "object",
-      "required": ["id", "name", "interval", "dayConfigurable", "weekPin", "dayPin", "notes", "requirements", "annualCadence", "canBeOverdue"],
+      "required": ["id", "name", "interval", "weekPin", "dayPin", "notes", "requirements", "annualCadence", "canBeOverdue"],
       "additionalProperties": false,
       "properties": {
         "id":   { "type": "string" },
         "name": { "type": "string" },
         "interval": { "$ref": "#/$defs/interval" },
-        "dayConfigurable": { "type": "boolean" },
         "weekPin": {
           "oneOf": [
             { "type": "string", "enum": ["odd", "even"] },
