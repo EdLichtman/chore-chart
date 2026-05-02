@@ -155,3 +155,70 @@ def test_attempt_fixes_does_not_touch_passing_rules():
     log = []
     attempt_fixes(results, flags, log, attempt=1)
     assert flags["rule3_vertical_dates"] is False
+
+from generate_almanac import generate_markdown, DEFAULT_FIX_FLAGS
+import yaml
+
+def _load_minimal_yaml():
+    return yaml.safe_load("""
+chores:
+  - name: Test Chore
+    category: [outdoor]
+    starts: Jan 01
+    interval: annually
+    details:
+      - Do the thing
+lookahead: []
+""")
+
+def test_rule6_removes_empty_rows():
+    data = _load_minimal_yaml()
+    flags = dict(DEFAULT_FIX_FLAGS)
+    flags["rule6_no_empty_rows"] = True
+    md = generate_markdown(data, year=2026, fix_flags=flags)
+    assert md.count("| | | | |") == 0
+
+def test_rule6_off_keeps_empty_rows():
+    data = _load_minimal_yaml()
+    md = generate_markdown(data, year=2026)
+    assert md.count("| | | | |") > 0
+
+def test_rule3_stacks_dates_vertically():
+    data = yaml.safe_load("""
+chores:
+  - name: Lawn Care
+    category: [outdoor]
+    schedule:
+      - frequency: monthly
+        months: Mar - May
+lookahead: []
+""")
+    flags = dict(DEFAULT_FIX_FLAGS)
+    flags["rule3_vertical_dates"] = True
+    md = generate_markdown(data, year=2026, fix_flags=flags)
+    assert "+---" in md or "+-" in md
+
+def test_rule3_off_uses_pipe_table():
+    data = _load_minimal_yaml()
+    md = generate_markdown(data, year=2026)
+    assert "| Chore | Category | Predicted Dates |" in md
+
+def test_rule13_adds_bullet_to_subchore_in_grid_table():
+    data = yaml.safe_load("""
+chores:
+  - name: House Cleaning
+    category: [indoor]
+    starts: Jan 01
+    interval: annually
+    subchores:
+      - name: Dust Ceiling Fans
+        details: [Wipe blades]
+      - name: Vacuum Floors
+        details: [Move furniture first]
+lookahead: []
+""")
+    flags = dict(DEFAULT_FIX_FLAGS)
+    flags["rule13_bullet_nonitalic"] = True
+    flags["rule3_vertical_dates"] = True
+    md = generate_markdown(data, year=2026, fix_flags=flags)
+    assert "• Dust Ceiling Fans" in md or "•  Dust Ceiling Fans" in md

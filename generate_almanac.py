@@ -599,7 +599,9 @@ def sort_dates_by_season(dates, season, year):
     return sorted(dates, key=lambda d: (d - start_date).days)
 
 
-def generate_markdown(chores_data, year):
+def generate_markdown(chores_data, year, fix_flags=None):
+    if fix_flags is None:
+        fix_flags = {}
     lines = [
         f'# Chore Almanac {year}',
         f'*Generated: {date.today().strftime("%B %d, %Y")}*',
@@ -667,10 +669,6 @@ def generate_markdown(chores_data, year):
         lines.append(f'## {season} ({date_range})')
         lines.append('')
 
-        # Pipe table with multi-line cell support
-        lines.append('| Chore | Category | Predicted Dates | Actual |')
-        lines.append('|-------|----------|-----------------|--------|')
-
         # Table rows - group by parent chore first
         chore_groups = defaultdict(list)
         for (parent_name, subchore_name), occurrences in by_season[season].items():
@@ -708,23 +706,61 @@ def generate_markdown(chores_data, year):
                     'details': occurrences[0][2]
                 })
 
-        # Output table rows
-        for parent_name in sorted(chore_groups.keys()):
-            entries = chore_groups[parent_name]
-            for idx, entry in enumerate(entries):
-                if entry['is_parent']:
-                    # Parent row
-                    category_str = ', '.join(entry['categories']) if entry['categories'] else '?'
-                    dates_str = ' / '.join([d.strftime('%b %d') for d in entry['dates']]) if entry['dates'] else ''
-                    lines.append(f'| {parent_name} | {category_str} | {dates_str} | |')
-                else:
-                    # Subchore row with em-space indentation (no bullet)
-                    dates_str = ' / '.join([d.strftime('%b %d') for d in entry['dates']])
-                    lines.append(f'|   {entry["subchore_name"]} | | {dates_str} | |')
+        if fix_flags.get("rule3_vertical_dates"):
+            # Grid table: dates stacked vertically, one per line
+            header_row = ["Chore", "Category", "Predicted Dates", "Actual"]
+            col_widths = [30, 14, 20, 8]
 
-        # Add 3 blank rows
-        for _ in range(3):
-            lines.append('| | | | |')
+            border = '+' + '+'.join(['-' * w for w in col_widths]) + '+'
+            sep    = '+' + '+'.join(['=' * w for w in col_widths]) + '+'
+            lines.append(border)
+            lines.append('| ' + ' | '.join(h.ljust(w) for h, w in zip(header_row, col_widths)) + ' |')
+            lines.append(sep)
+
+            for parent_name in sorted(chore_groups.keys()):
+                entries = chore_groups[parent_name]
+                for entry in entries:
+                    if entry['is_parent']:
+                        category_str = ', '.join(entry['categories']) if entry['categories'] else '?'
+                        dates_lines = [d.strftime('%b %d') for d in entry['dates']] if entry['dates'] else ['']
+                        name_col = parent_name
+                    else:
+                        category_str = ''
+                        dates_lines = [d.strftime('%b %d') for d in entry['dates']]
+                        prefix = "• " if fix_flags.get("rule13_bullet_nonitalic") else "  "
+                        name_col = f"{prefix}{entry['subchore_name']}"
+
+                    max_lines = max(1, len(dates_lines))
+                    for line_i in range(max_lines):
+                        n = name_col if line_i == 0 else ''
+                        c = category_str if line_i == 0 else ''
+                        d = dates_lines[line_i] if line_i < len(dates_lines) else ''
+                        lines.append('| ' + ' | '.join([
+                            n.ljust(col_widths[0]),
+                            c.ljust(col_widths[1]),
+                            d.ljust(col_widths[2]),
+                            ''.ljust(col_widths[3]),
+                        ]) + ' |')
+                    lines.append(border)
+        else:
+            # Pipe table (original format)
+            lines.append('| Chore | Category | Predicted Dates | Actual |')
+            lines.append('|-------|----------|-----------------|--------|')
+
+            for parent_name in sorted(chore_groups.keys()):
+                entries = chore_groups[parent_name]
+                for idx, entry in enumerate(entries):
+                    if entry['is_parent']:
+                        category_str = ', '.join(entry['categories']) if entry['categories'] else '?'
+                        dates_str = ' / '.join([d.strftime('%b %d') for d in entry['dates']]) if entry['dates'] else ''
+                        lines.append(f'| {parent_name} | {category_str} | {dates_str} | |')
+                    else:
+                        dates_str = ' / '.join([d.strftime('%b %d') for d in entry['dates']])
+                        lines.append(f'|   {entry["subchore_name"]} | | {dates_str} | |')
+
+            if not fix_flags.get("rule6_no_empty_rows"):
+                for _ in range(3):
+                    lines.append('| | | | |')
 
         lines.append('')
 
