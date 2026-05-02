@@ -18,8 +18,63 @@ try:
 except ImportError:
     HAS_PYTHON_DOCX = False
 
+try:
+    import fitz
+    HAS_FITZ = True
+except ImportError:
+    HAS_FITZ = False
+
 def all_rules_pass(results: dict) -> bool:
     return all(r["status"] != "FAIL" for r in results.get("rules", []))
+
+
+LIBREOFFICE_PATHS = [
+    r"C:\Program Files\LibreOffice\program\soffice.exe",
+    r"C:\Program Files (x86)\LibreOffice\program\soffice.exe",
+]
+
+
+def find_libreoffice() -> str:
+    for path in LIBREOFFICE_PATHS:
+        if os.path.exists(path):
+            return path
+    raise FileNotFoundError(
+        "LibreOffice not found. Install from https://www.libreoffice.org/ "
+        "or via: choco install libreoffice"
+    )
+
+
+def convert_to_image(docx_file: str, output_dir: str) -> list:
+    """Convert DOCX to PNG pages via LibreOffice + fitz. Returns list of PNG paths."""
+    if not HAS_FITZ:
+        raise ImportError("PyMuPDF (fitz) required. Install: py -m pip install pymupdf")
+
+    soffice = find_libreoffice()
+    docx_name = os.path.splitext(os.path.basename(docx_file))[0]
+    pdf_path = os.path.join(output_dir, docx_name + ".pdf")
+
+    print(f"Converting {docx_file} to PDF via LibreOffice...")
+    result = subprocess.run(
+        [soffice, "--headless", "--convert-to", "pdf", "--outdir", output_dir, docx_file],
+        capture_output=True, text=True, timeout=120
+    )
+    if result.returncode != 0:
+        raise RuntimeError(f"LibreOffice DOCX->PDF failed:\n{result.stderr}")
+    if not os.path.exists(pdf_path):
+        raise FileNotFoundError(f"Expected PDF at {pdf_path} but it was not created")
+
+    print("Rendering PDF pages to PNG (150 DPI)...")
+    png_paths = []
+    doc = fitz.open(pdf_path)
+    for page_num, page in enumerate(doc):
+        pix = page.get_pixmap(dpi=150)
+        png_path = os.path.join(output_dir, f"{docx_name}_page_{page_num + 1}.png")
+        pix.save(png_path)
+        png_paths.append(png_path)
+    doc.close()
+
+    print(f"Rendered {len(png_paths)} page(s).")
+    return png_paths
 
 
 MONTH_MAP = {name.lower(): i for i, name in enumerate(
