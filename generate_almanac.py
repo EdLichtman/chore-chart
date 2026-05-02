@@ -5,6 +5,7 @@ import yaml
 import re
 import calendar
 import subprocess
+import json
 import os
 from datetime import date, timedelta
 from collections import defaultdict
@@ -75,6 +76,42 @@ def convert_to_image(docx_file: str, output_dir: str) -> list:
 
     print(f"Rendered {len(png_paths)} page(s).")
     return png_paths
+
+
+def validate_image(image_paths: list, checklist_path: str) -> dict:
+    """Call claude -p to validate image pages against checklist. Returns parsed JSON."""
+    checklist = open(checklist_path, encoding="utf-8").read()
+
+    paths_str = "\n".join(f"- {p}" for p in image_paths)
+    prompt = (
+        checklist
+        + "\n\n---\n"
+        + "Read each of these image files using the Read tool and inspect them against each rule above:\n"
+        + paths_str
+        + "\n\nFor each rule, output a JSON object. Output ONLY valid JSON, no markdown fences, no prose:\n"
+        + '{\n  "rules": [\n    {"id": 1, "name": "...", "status": "PASS" | "FAIL" | "UNCERTAIN", "reason": "..."}\n  ]\n}'
+    )
+
+    result = subprocess.run(
+        ["claude", "-p", prompt,
+         "--allowedTools", "Read",
+         "--output-format", "json",
+         "--no-session-persistence"],
+        capture_output=True, text=True, encoding="utf-8",
+        timeout=180, stdin=subprocess.DEVNULL
+    )
+
+    if result.returncode != 0:
+        raise RuntimeError(f"claude validation failed (exit {result.returncode}):\n{result.stderr}")
+
+    envelope = json.loads(result.stdout)
+    raw = envelope.get("result", "")
+
+    raw = raw.strip()
+    if raw.startswith("```"):
+        raw = raw.split("\n", 1)[1].rsplit("```", 1)[0].strip()
+
+    return json.loads(raw)
 
 
 MONTH_MAP = {name.lower(): i for i, name in enumerate(
