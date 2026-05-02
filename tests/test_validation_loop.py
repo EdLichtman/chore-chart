@@ -99,3 +99,24 @@ def test_validate_image_strips_markdown_fences(tmp_path):
         result = validate_image([str(fake_img)], str(checklist))
 
     assert result["rules"][0]["id"] == 1
+
+from generate_almanac import write_report
+
+def test_write_report_creates_file(tmp_path):
+    results = {"rules": [
+        {"id": 1, "name": "Subchores indented", "status": "PASS", "reason": "visible nesting"},
+        {"id": 3, "name": "Dates stacked", "status": "FAIL", "reason": "dates still horizontal"},
+    ]}
+    fix_log = [{"attempt": 1, "rules_attempted": [3], "fixes_applied": [
+        {"rule": 3, "action": "Changed separator to newline"}
+    ]}]
+    report_file = str(tmp_path / "inspection_report.txt")
+    write_report(results, attempt=2, max_attempts=3, fix_log=fix_log, output_file=report_file)
+
+    content = open(report_file).read()
+    assert "PASS" in content
+    assert "FAIL" in content
+    assert "Rule 1" in content
+    assert "Rule 3" in content
+    assert "Attempt: 2 of 3" in content
+    assert "Changed separator to newline" in content

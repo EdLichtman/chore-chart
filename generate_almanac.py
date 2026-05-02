@@ -114,6 +114,43 @@ def validate_image(image_paths: list, checklist_path: str) -> dict:
     return json.loads(raw)
 
 
+def write_report(results: dict, attempt: int, max_attempts: int,
+                 fix_log: list, output_file: str) -> None:
+    from datetime import datetime
+    lines = [
+        "ALMANAC VALIDATION REPORT",
+        f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+        f"Attempt: {attempt} of {max_attempts}",
+        "",
+        "RULE RESULTS:",
+    ]
+
+    status_sym = {"PASS": "✓", "FAIL": "✗", "UNCERTAIN": "⚠"}
+    passing = failing = uncertain = 0
+    for rule in results.get("rules", []):
+        sym = status_sym.get(rule["status"], "?")
+        name = rule.get("name", "")
+        reason = rule.get("reason", "")
+        lines.append(f"  {sym} Rule {rule['id']} — {name:<45} {rule['status']:<10} ({reason})")
+        if rule["status"] == "PASS": passing += 1
+        elif rule["status"] == "FAIL": failing += 1
+        else: uncertain += 1
+
+    lines += ["", f"PASSING: {passing}  FAILING: {failing}  UNCERTAIN: {uncertain}"]
+
+    if fix_log:
+        lines += ["", "FIXES APPLIED:"]
+        for entry in fix_log:
+            lines.append(f"  Attempt {entry['attempt']}:")
+            for fix in entry.get("fixes_applied", []):
+                lines.append(f"    Rule {fix['rule']}: {fix['action']}")
+
+    with open(output_file, "w", encoding="utf-8") as f:
+        f.write("\n".join(lines) + "\n")
+
+    print(f"Report written to {output_file}")
+
+
 MONTH_MAP = {name.lower(): i for i, name in enumerate(
     ['', 'January', 'February', 'March', 'April', 'May', 'June',
      'July', 'August', 'September', 'October', 'November', 'December']) if i > 0}
