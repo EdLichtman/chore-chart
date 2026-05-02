@@ -151,6 +151,48 @@ def write_report(results: dict, attempt: int, max_attempts: int,
     print(f"Report written to {output_file}")
 
 
+_RULE_FIX_MAP = {
+    3:  ("rule3_vertical_dates",  "Stack dates vertically with newline separator; switch to grid table"),
+    4:  ("rule4_yellow_bg",       "Add yellow background shading to blockquote paragraphs"),
+    5:  ("rule5_no_separators",   "Remove paragraph borders between sections"),
+    6:  ("rule6_no_empty_rows",   "Remove empty table rows from generated markdown"),
+    8:  ("rule8_no_empty_pages",  "Delete empty pages via python-docx"),
+    9:  ("rule9_page_headers",    "Add page headers via LibreOffice macro"),
+    13: ("rule13_bullet_nonitalic", "Prepend bullet to subchore names; remove italic"),
+}
+
+
+def attempt_fixes(results: dict, fix_flags: dict, fix_log: list, attempt: int) -> None:
+    """Set fix flags for all failing rules and record what was attempted."""
+    failing = [r for r in results.get("rules", []) if r["status"] == "FAIL"]
+    if not failing:
+        return
+
+    fixes_applied = []
+    for rule in failing:
+        rule_id = rule["id"]
+        if rule_id not in _RULE_FIX_MAP:
+            print(f"  No fix defined for Rule {rule_id} — skipping")
+            continue
+        flag_name, description = _RULE_FIX_MAP[rule_id]
+        fix_flags[flag_name] = True
+        fixes_applied.append({"rule": rule_id, "action": description})
+        print(f"  Queued fix for Rule {rule_id}: {description}")
+
+    fix_log.append({"attempt": attempt, "rules_attempted": [r["id"] for r in failing],
+                    "fixes_applied": fixes_applied})
+
+
+DEFAULT_FIX_FLAGS = {
+    "rule3_vertical_dates": False,
+    "rule4_yellow_bg": False,
+    "rule5_no_separators": False,
+    "rule6_no_empty_rows": False,
+    "rule8_no_empty_pages": False,
+    "rule9_page_headers": False,
+    "rule13_bullet_nonitalic": False,
+}
+
 MONTH_MAP = {name.lower(): i for i, name in enumerate(
     ['', 'January', 'February', 'March', 'April', 'May', 'June',
      'July', 'August', 'September', 'October', 'November', 'December']) if i > 0}

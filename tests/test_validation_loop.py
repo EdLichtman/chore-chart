@@ -120,3 +120,38 @@ def test_write_report_creates_file(tmp_path):
     assert "Rule 3" in content
     assert "Attempt: 2 of 3" in content
     assert "Changed separator to newline" in content
+
+from generate_almanac import attempt_fixes, DEFAULT_FIX_FLAGS
+
+def make_flags():
+    return dict(DEFAULT_FIX_FLAGS)
+
+def test_attempt_fixes_sets_rule6_flag():
+    results = {"rules": [{"id": 6, "status": "FAIL", "name": "No empty rows", "reason": "rows present"}]}
+    flags = make_flags()
+    log = []
+    attempt_fixes(results, flags, log, attempt=1)
+    assert flags["rule6_no_empty_rows"] is True
+
+def test_attempt_fixes_sets_rule3_flag():
+    results = {"rules": [{"id": 3, "status": "FAIL", "name": "Dates stacked", "reason": "horizontal"}]}
+    flags = make_flags()
+    log = []
+    attempt_fixes(results, flags, log, attempt=1)
+    assert flags["rule3_vertical_dates"] is True
+
+def test_attempt_fixes_records_fix_log():
+    results = {"rules": [{"id": 6, "status": "FAIL", "name": "No empty rows", "reason": "rows"}]}
+    flags = make_flags()
+    log = []
+    attempt_fixes(results, flags, log, attempt=1)
+    assert len(log) == 1
+    assert log[0]["attempt"] == 1
+    assert any(f["rule"] == 6 for f in log[0]["fixes_applied"])
+
+def test_attempt_fixes_does_not_touch_passing_rules():
+    results = {"rules": [{"id": 3, "status": "PASS", "name": "Dates stacked", "reason": "ok"}]}
+    flags = make_flags()
+    log = []
+    attempt_fixes(results, flags, log, attempt=1)
+    assert flags["rule3_vertical_dates"] is False
