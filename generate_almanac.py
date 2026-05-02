@@ -942,6 +942,110 @@ def fix_list_spacing(docx_file):
         return False
 
 
+def add_yellow_bg_to_blockquotes(docx_file: str) -> bool:
+    """Add yellow background shading to blockquote-style paragraphs."""
+    if not HAS_PYTHON_DOCX:
+        return False
+    try:
+        print(f"Adding yellow background to blockquotes in {docx_file}...")
+        doc = Document(docx_file)
+        shading_xml = (
+            '<w:shd xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"'
+            ' w:val="clear" w:color="auto" w:fill="B8860B"/>'
+        )
+        count = 0
+        for para in doc.paragraphs:
+            style_name = para.style.name if para.style else ""
+            if "Quote" in style_name or (para.text and para.text.startswith("⚠")):
+                pPr = para._element.get_or_add_pPr()
+                for child in list(pPr):
+                    if "shd" in child.tag:
+                        pPr.remove(child)
+                pPr.append(parse_xml(shading_xml))
+                count += 1
+        doc.save(docx_file)
+        print(f"  Applied yellow background to {count} paragraph(s).")
+        return True
+    except Exception as e:
+        print(f"Error adding yellow background: {e}")
+        return False
+
+
+def remove_paragraph_borders(docx_file: str) -> bool:
+    """Remove all paragraph border elements (pBdr) that create horizontal rules."""
+    if not HAS_PYTHON_DOCX:
+        return False
+    try:
+        print(f"Removing paragraph borders from {docx_file}...")
+        doc = Document(docx_file)
+        ns = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+        count = 0
+        for para in doc.paragraphs:
+            pPr = para._element.find(f"{{{ns}}}pPr")
+            if pPr is None:
+                continue
+            for child in list(pPr):
+                if child.tag == f"{{{ns}}}pBdr":
+                    pPr.remove(child)
+                    count += 1
+        doc.save(docx_file)
+        print(f"  Removed {count} paragraph border element(s).")
+        return True
+    except Exception as e:
+        print(f"Error removing paragraph borders: {e}")
+        return False
+
+
+def remove_empty_pages(docx_file: str) -> bool:
+    """Remove empty paragraphs that create blank pages."""
+    if not HAS_PYTHON_DOCX:
+        return False
+    try:
+        print(f"Removing empty pages from {docx_file}...")
+        doc = Document(docx_file)
+        ns = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+        removed = 0
+        prev_had_page_break = False
+        body = doc.element.body
+        paras = list(body.iterchildren(f"{{{ns}}}p"))
+        for para in paras:
+            text = "".join(t.text or "" for t in para.iter(f"{{{ns}}}t")).strip()
+            has_page_break = para.find(f".//{{{ns}}}br[@{{{ns}}}type='page']") is not None
+
+            if prev_had_page_break and not text and not has_page_break:
+                body.remove(para)
+                removed += 1
+            else:
+                prev_had_page_break = has_page_break
+
+        doc.save(docx_file)
+        print(f"  Removed {removed} empty paragraph(s).")
+        return True
+    except Exception as e:
+        print(f"Error removing empty pages: {e}")
+        return False
+
+
+def post_process_docx(docx_file: str, fix_flags: dict) -> None:
+    """Run all post-processing steps on the DOCX file."""
+    add_table_borders_to_docx(docx_file)
+
+    if fix_flags.get("rule4_yellow_bg"):
+        add_yellow_bg_to_blockquotes(docx_file)
+
+    if fix_flags.get("rule5_no_separators"):
+        remove_paragraph_borders(docx_file)
+
+    if fix_flags.get("rule8_no_empty_pages"):
+        remove_empty_pages(docx_file)
+
+    if fix_flags.get("rule9_page_headers"):
+        add_page_headers_libreoffice(docx_file)
+
+    if fix_flags.get("rule13_bullet_nonitalic"):
+        fix_subchore_heading_style(docx_file)
+
+
 def main():
     yaml_file = r'c:\Users\elich\OneDrive\Eddie\Chores\chores_almanac.yaml'
     output_md = r'c:\Users\elich\OneDrive\Eddie\Chores\chore_almanac.md'

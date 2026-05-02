@@ -222,3 +222,75 @@ lookahead: []
     flags["rule3_vertical_dates"] = True
     md = generate_markdown(data, year=2026, fix_flags=flags)
     assert "• Dust Ceiling Fans" in md or "•  Dust Ceiling Fans" in md
+
+from generate_almanac import post_process_docx, add_yellow_bg_to_blockquotes
+
+def test_post_process_calls_table_borders(tmp_path):
+    from docx import Document
+    fake_docx = str(tmp_path / "test.docx")
+    doc = Document()
+    doc.save(fake_docx)
+
+    flags = dict(DEFAULT_FIX_FLAGS)
+    with patch("generate_almanac.add_table_borders_to_docx") as mock_borders, \
+         patch("generate_almanac.add_yellow_bg_to_blockquotes") as mock_yellow:
+        post_process_docx(fake_docx, flags)
+    mock_borders.assert_called_once_with(fake_docx)
+    mock_yellow.assert_not_called()
+
+def test_post_process_calls_yellow_bg_when_flag_set(tmp_path):
+    from docx import Document
+    fake_docx = str(tmp_path / "test.docx")
+    doc = Document()
+    doc.save(fake_docx)
+
+    flags = dict(DEFAULT_FIX_FLAGS)
+    flags["rule4_yellow_bg"] = True
+    with patch("generate_almanac.add_table_borders_to_docx"), \
+         patch("generate_almanac.add_yellow_bg_to_blockquotes") as mock_yellow:
+        post_process_docx(fake_docx, flags)
+    mock_yellow.assert_called_once_with(fake_docx)
+
+from generate_almanac import remove_paragraph_borders
+
+def test_remove_paragraph_borders_runs_without_error(tmp_path):
+    from docx import Document
+    from docx.oxml import parse_xml
+    doc = Document()
+    para = doc.add_paragraph("Test paragraph")
+    pPr = para._element.get_or_add_pPr()
+    border_xml = (
+        '<w:pBdr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+        '<w:bottom w:val="single" w:sz="6" w:space="1" w:color="auto"/>'
+        '</w:pBdr>'
+    )
+    pPr.append(parse_xml(border_xml))
+    docx_path = str(tmp_path / "test.docx")
+    doc.save(docx_path)
+
+    result = remove_paragraph_borders(docx_path)
+    assert result is True
+
+    doc2 = Document(docx_path)
+    ns = {"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"}
+    borders = doc2.element.findall(".//w:pBdr", ns)
+    assert len(borders) == 0
+
+from generate_almanac import remove_empty_pages
+
+def test_remove_empty_pages_runs_without_error(tmp_path):
+    from docx import Document
+    from docx.oxml import parse_xml
+    doc = Document()
+    doc.add_paragraph("Content page 1")
+    para_break = doc.add_paragraph()
+    run = para_break.add_run()
+    run._element.append(parse_xml(
+        '<w:br xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" w:type="page"/>'
+    ))
+    doc.add_paragraph("")
+    docx_path = str(tmp_path / "test.docx")
+    doc.save(docx_path)
+
+    result = remove_empty_pages(docx_path)
+    assert result is True
