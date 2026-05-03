@@ -100,28 +100,58 @@ def validate_image(image_paths: list, checklist_path: str) -> dict:
         + "\n\n---\n"
         + "Read each of these image files using the Read tool and inspect them against each rule above:\n"
         + paths_str
-        + "\n\nFor each rule, output a JSON object. Output ONLY valid JSON, no markdown fences, no prose:\n"
+        + "\n\nFor each rule, describe what you see and whether it passes or fails, then output a final JSON"
+        + " object at the end. The JSON must be the last thing you output:\n"
         + '{\n  "rules": [\n    {"id": 1, "name": "...", "status": "PASS" | "FAIL" | "UNCERTAIN", "reason": "..."}\n  ]\n}'
     )
 
-    result = subprocess.run(
+    print("\n--- Claude validation output ---")
+    proc = subprocess.Popen(
         ["claude", "-p", prompt,
          "--allowedTools", "Read",
-         "--output-format", "json",
          "--no-session-persistence"],
-        capture_output=True, text=True, encoding="utf-8",
-        timeout=600, stdin=subprocess.DEVNULL
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        text=True, encoding="utf-8", errors="replace",
+        stdin=subprocess.DEVNULL
     )
 
-    if result.returncode != 0:
-        raise RuntimeError(f"claude validation failed (exit {result.returncode}):\n{result.stderr}")
+    output_lines = []
+    import threading
 
-    envelope = json.loads(result.stdout)
-    raw = envelope.get("result", "")
+    def stream_stderr():
+        for line in proc.stderr:
+            pass  # discard stderr silently
 
-    raw = raw.strip()
+    t = threading.Thread(target=stream_stderr, daemon=True)
+    t.start()
+
+    for line in proc.stdout:
+        print(line, end="", flush=True)
+        output_lines.append(line)
+
+    proc.wait(timeout=600)
+    print("\n--- end validation output ---\n")
+
+    if proc.returncode != 0:
+        raise RuntimeError(f"claude validation failed (exit {proc.returncode})")
+
+    full_output = "".join(output_lines)
+
+    # Strip markdown fences if present
+    raw = full_output.strip()
     if raw.startswith("```"):
         raw = raw.split("\n", 1)[1].rsplit("```", 1)[0].strip()
+
+    # Find the last JSON object in the output (Claude may write prose before the JSON)
+    last_brace = raw.rfind("```json")
+    if last_brace != -1:
+        raw = raw[last_brace + 7:].split("```")[0].strip()
+    else:
+        last_brace = raw.rfind('{"rules"')
+        if last_brace == -1:
+            last_brace = raw.rfind('{\n  "rules"')
+        if last_brace != -1:
+            raw = raw[last_brace:]
 
     return json.loads(raw)
 

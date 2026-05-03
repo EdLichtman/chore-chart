@@ -69,6 +69,15 @@ def test_convert_to_image_returns_png_paths(tmp_path):
 from generate_almanac import validate_image
 import json
 
+def _make_popen_mock(output_text, returncode=0):
+    """Helper: mock subprocess.Popen to return output_text from stdout."""
+    mock_proc = MagicMock()
+    mock_proc.stdout = iter(output_text.splitlines(keepends=True))
+    mock_proc.stderr = iter([])
+    mock_proc.returncode = returncode
+    mock_proc.wait = MagicMock(return_value=returncode)
+    return mock_proc
+
 def test_validate_image_parses_json_from_claude(tmp_path):
     fake_img = tmp_path / "page_1.png"
     fake_img.write_bytes(b"fake")
@@ -76,14 +85,9 @@ def test_validate_image_parses_json_from_claude(tmp_path):
     checklist.write_text("## Rule 1: test rule\n- PASS condition: visible\n")
 
     expected = {"rules": [{"id": 1, "name": "test rule", "status": "PASS", "reason": "visible"}]}
-    mock_output = json.dumps({
-        "type": "result",
-        "subtype": "success",
-        "result": json.dumps(expected)
-    })
+    output_text = json.dumps(expected)
 
-    with patch("generate_almanac.subprocess.run") as mock_run:
-        mock_run.return_value = MagicMock(returncode=0, stdout=mock_output, stderr="")
+    with patch("generate_almanac.subprocess.Popen", return_value=_make_popen_mock(output_text)):
         result = validate_image([str(fake_img)], str(checklist))
 
     assert result["rules"][0]["status"] == "PASS"
@@ -95,13 +99,9 @@ def test_validate_image_strips_markdown_fences(tmp_path):
     checklist.write_text("rule")
 
     inner = {"rules": [{"id": 1, "status": "PASS", "name": "r", "reason": "ok"}]}
-    fenced = f"```json\n{json.dumps(inner)}\n```"
-    mock_output = json.dumps({
-        "type": "result", "subtype": "success", "result": fenced
-    })
+    output_text = f"Here is my analysis.\n```json\n{json.dumps(inner)}\n```"
 
-    with patch("generate_almanac.subprocess.run") as mock_run:
-        mock_run.return_value = MagicMock(returncode=0, stdout=mock_output, stderr="")
+    with patch("generate_almanac.subprocess.Popen", return_value=_make_popen_mock(output_text)):
         result = validate_image([str(fake_img)], str(checklist))
 
     assert result["rules"][0]["id"] == 1
