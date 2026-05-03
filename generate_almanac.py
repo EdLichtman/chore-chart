@@ -788,8 +788,8 @@ def generate_markdown(chores_data, year, fix_flags=None):
             header_row = ["Chore", "Category", "Predicted Dates", "Actual"]
             col_widths = [30, 14, 20, 8]
 
-            border = '+' + '+'.join(['-' * w for w in col_widths]) + '+'
-            sep    = '+' + '+'.join(['=' * w for w in col_widths]) + '+'
+            border = '+' + '+'.join(['-' * (w + 2) for w in col_widths]) + '+'
+            sep    = '+' + '+'.join(['=' * (w + 2) for w in col_widths]) + '+'
             lines.append(border)
             lines.append('| ' + ' | '.join(h.ljust(w) for h, w in zip(header_row, col_widths)) + ' |')
             lines.append(sep)
@@ -1104,32 +1104,23 @@ def remove_empty_pages(docx_file: str) -> bool:
 
 
 def add_page_headers_libreoffice(docx_file: str) -> bool:
-    """Add page headers via python-docx XML manipulation."""
+    """Add page headers via python-docx using built-in Header style with tab zones."""
     if not HAS_PYTHON_DOCX:
         return False
     try:
-        print(f"Adding page headers to {docx_file} via python-docx...")
+        print(f"Adding page headers to {docx_file}...")
         doc = Document(docx_file)
-        ns = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
 
         for section in doc.sections:
-            section.different_first_page_header_footer = False
             header = section.header
-            header.is_linked_to_previous = False
-
-            # Clear existing header content
-            for para in header.paragraphs:
-                for run in para.runs:
-                    run.text = ""
-
-            # Use first paragraph or add one
-            if header.paragraphs:
-                para = header.paragraphs[0]
-            else:
-                para = header.add_paragraph()
-
-            para.clear()
-            run = para.add_run("Chore Almanac")
+            # Setting paragraph text unlinks the header automatically
+            para = header.paragraphs[0]
+            # "Header" style has built-in center and right tab stops
+            para.text = "Chore Almanac\t\t"
+            try:
+                para.style = doc.styles["Header"]
+            except KeyError:
+                pass  # style may not exist in this template; text is still set
 
         doc.save(docx_file)
         print("  Page headers added.")
