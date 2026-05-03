@@ -249,7 +249,10 @@ def escalate_to_user(results: dict, fix_log: list, report_file: str) -> None:
     print(f"  D) Review the document manually — run: start {os.path.dirname(report_file)}\\chore_almanac.docx")
     print()
 
-    user_response = input("Would you like to try a different approach? (A/B/C/D or describe): ").strip()
+    try:
+        user_response = input("Would you like to try a different approach? (A/B/C/D or describe): ").strip()
+    except EOFError:
+        user_response = "(no input — run interactively to respond)"
 
     with open(report_file, "a", encoding="utf-8") as f:
         f.write(f"\nUser response: {user_response}\n")
@@ -1101,55 +1104,38 @@ def remove_empty_pages(docx_file: str) -> bool:
 
 
 def add_page_headers_libreoffice(docx_file: str) -> bool:
-    """Attempt to add page headers via LibreOffice Basic macro. Best-effort — may not work."""
+    """Add page headers via python-docx XML manipulation."""
+    if not HAS_PYTHON_DOCX:
+        return False
     try:
-        import tempfile
-        soffice = find_libreoffice()
+        print(f"Adding page headers to {docx_file} via python-docx...")
+        doc = Document(docx_file)
+        ns = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
 
-        macro_src = (
-            "import uno\n"
-            "\n"
-            "def AddHeaders():\n"
-            "    ctx = uno.getComponentContext()\n"
-            "    smgr = ctx.ServiceManager\n"
-            "    desktop = smgr.createInstanceWithContext('com.sun.star.frame.Desktop', ctx)\n"
-            "    url = uno.systemPathToFileUrl(r'" + docx_file.replace("\\", "\\\\") + "')\n"
-            "    doc = desktop.loadComponentFromURL(url, '_blank', 0, ())\n"
-            "    page_styles = doc.StyleFamilies.getByName('PageStyles')\n"
-            "    default_style = page_styles.getByName('Default Page Style')\n"
-            "    default_style.HeaderIsOn = True\n"
-            "    default_style.HeaderIsShared = True\n"
-            "    header_text = default_style.HeaderText\n"
-            "    cursor = header_text.createTextCursor()\n"
-            "    cursor.gotoStart(False)\n"
-            "    cursor.gotoEnd(True)\n"
-            "    header_text.insertString(cursor, 'Chore Almanac', False)\n"
-            "    doc.store()\n"
-            "    doc.close(True)\n"
-            "\n"
-            "AddHeaders()\n"
-        )
+        for section in doc.sections:
+            section.different_first_page_header_footer = False
+            header = section.header
+            header.is_linked_to_previous = False
 
-        with tempfile.NamedTemporaryFile(suffix=".py", mode="w",
-                                         encoding="utf-8", delete=False) as f:
-            f.write(macro_src)
-            macro_path = f.name
+            # Clear existing header content
+            for para in header.paragraphs:
+                for run in para.runs:
+                    run.text = ""
 
-        result = subprocess.run(
-            [soffice, "--headless", "--norestore",
-             "--infilter=writer8", docx_file,
-             "--run-macro", f"macro:///{macro_path}"],
-            capture_output=True, text=True, timeout=60
-        )
-        os.unlink(macro_path)
+            # Use first paragraph or add one
+            if header.paragraphs:
+                para = header.paragraphs[0]
+            else:
+                para = header.add_paragraph()
 
-        if result.returncode != 0:
-            print(f"  LibreOffice macro failed (exit {result.returncode}): {result.stderr[:300]}")
-            return False
-        print("  Page headers added via LibreOffice macro.")
+            para.clear()
+            run = para.add_run("Chore Almanac")
+
+        doc.save(docx_file)
+        print("  Page headers added.")
         return True
     except Exception as e:
-        print(f"Error adding page headers: {e}")
+        print(f"  Page header error: {e}")
         return False
 
 
