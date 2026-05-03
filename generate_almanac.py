@@ -1132,69 +1132,88 @@ def post_process_docx(docx_file: str, fix_flags: dict) -> None:
 
 
 def main():
-    yaml_file = r'c:\Users\elich\OneDrive\Eddie\Chores\chores_almanac.yaml'
-    output_md = r'c:\Users\elich\OneDrive\Eddie\Chores\chore_almanac.md'
+    yaml_file   = r'c:\Users\elich\OneDrive\Eddie\Chores\chores_almanac.yaml'
     output_docx = r'c:\Users\elich\OneDrive\Eddie\Chores\chore_almanac.docx'
+    output_dir  = r'c:\Users\elich\OneDrive\Eddie\Chores'
+    checklist   = r'c:\Users\elich\OneDrive\Eddie\Chores\VALIDATION_CHECKLIST.md'
+    report_file = r'c:\Users\elich\OneDrive\Eddie\Chores\inspection_report.txt'
+    output_md   = r'c:\Users\elich\OneDrive\Eddie\Chores\chore_almanac.md'
+    template    = r'c:\Users\elich\OneDrive\Eddie\Chores\TABLE_TEMPLATE.docx'
+
+    MAX_ATTEMPTS = 3
+    fix_flags = dict(DEFAULT_FIX_FLAGS)
+    fix_log = []
 
     print(f'Loading {yaml_file}...')
     data = load_chores(yaml_file)
 
-    print('Generating almanac markdown...')
-    md = generate_markdown(data, year=2026)
+    for attempt in range(1, MAX_ATTEMPTS + 1):
+        print(f'\n=== Attempt {attempt} of {MAX_ATTEMPTS} ===')
 
-    # Add purchase schedule and as-needed sections
-    md += generate_purchase_schedule(data)
-    md += generate_as_needed(data)
+        # 1. Generate markdown
+        print('Generating almanac markdown...')
+        md = generate_markdown(data, year=2026, fix_flags=fix_flags)
+        md += generate_purchase_schedule(data)
+        md += generate_as_needed(data)
 
-    print(f'Writing {output_md}...')
-    with open(output_md, 'w', encoding='utf-8') as f:
-        f.write(md)
+        with open(output_md, 'w', encoding='utf-8') as f:
+            f.write(md)
 
-    # Convert markdown to docx using pandoc with table template
-    print(f'Converting to docx with pandoc...')
-    try:
-        template_file = r'c:\Users\elich\OneDrive\Eddie\Chores\TABLE_TEMPLATE.docx'
-        pandoc_cmd = [
-            'pandoc',
-            output_md,
-            '-f', 'markdown',
-            '-t', 'docx',
-            '-o', output_docx,
-            '--reference-doc', template_file,
-            '--standalone'
-        ]
-        subprocess.run(pandoc_cmd, check=True)
-        print(f'Successfully created {output_docx}')
-    except subprocess.CalledProcessError as e:
-        print(f'Error running pandoc: {e}')
-        print('Note: Make sure pandoc is installed and in your PATH')
-    except FileNotFoundError:
-        print('Error: pandoc not found. Install pandoc from https://pandoc.org/installing.html')
+        # 2. Pandoc: markdown → DOCX
+        print('Converting to DOCX with pandoc...')
+        try:
+            pandoc_cmd = ['pandoc', output_md, '-f', 'markdown', '-t', 'docx',
+                          '-o', output_docx, '--reference-doc', template, '--standalone']
+            subprocess.run(pandoc_cmd, check=True)
+        except subprocess.CalledProcessError as e:
+            print(f'Error running pandoc: {e}')
+            break
+        except FileNotFoundError:
+            print('Error: pandoc not found. Install from https://pandoc.org/installing.html')
+            break
 
-    # Post-process DOCX
-    add_table_borders_to_docx(output_docx)
-    # add_page_headers(output_docx)  # DISABLED - diagnose corruption
-    # fix_subchore_heading_style(output_docx)  # DISABLED - diagnose corruption
-    # fix_list_spacing(output_docx)  # DISABLED - diagnose corruption
+        if os.path.exists(output_md):
+            os.remove(output_md)
 
-    # Clean up intermediate markdown file
-    if os.path.exists(output_md):
-        os.remove(output_md)
-        print(f'Cleaned up {output_md}')
+        # 3. Post-process DOCX
+        post_process_docx(output_docx, fix_flags)
 
-    # Run verification tests
-    print()
-    print('Running verification tests...')
-    try:
-        import subprocess as sp
-        result = sp.run(['py', 'verify_headers.py'], capture_output=True, text=True, cwd=os.path.dirname(output_docx) or '.')
-        print(result.stdout)
-        if result.returncode != 0:
-            print('WARNING: Header verification failed!')
-    except Exception as e:
-        print(f'Note: Could not run verification tests ({e})')
+        # 4. Convert to image
+        try:
+            png_paths = convert_to_image(output_docx, output_dir)
+        except Exception as e:
+            print(f'Image conversion failed: {e}')
+            break
 
-    print('Done!')
+        # 5. Validate image
+        print('Validating image against checklist...')
+        try:
+            results = validate_image(png_paths, checklist)
+        except Exception as e:
+            print(f'Validation failed: {e}')
+            break
+
+        # 6. Write report
+        write_report(results, attempt, MAX_ATTEMPTS, fix_log, report_file)
+
+        n_pass = sum(1 for r in results['rules'] if r['status'] == 'PASS')
+        n_fail = sum(1 for r in results['rules'] if r['status'] == 'FAIL')
+        n_unc  = sum(1 for r in results['rules'] if r['status'] == 'UNCERTAIN')
+        print(f'\nResults: {n_pass} PASS, {n_fail} FAIL, {n_unc} UNCERTAIN')
+
+        if all_rules_pass(results):
+            print('\nAll rules passed. Document is valid.')
+            print(f'Output:  {output_docx}')
+            print(f'Preview: {png_paths[0] if png_paths else "none"}')
+            return
+
+        if attempt < MAX_ATTEMPTS:
+            print(f'\n{n_fail} rule(s) failing. Applying fixes for attempt {attempt + 1}...')
+            attempt_fixes(results, fix_flags, fix_log, attempt)
+        else:
+            escalate_to_user(results, fix_log, report_file)
+
+    print('Done.')
 
 
 if __name__ == '__main__':
