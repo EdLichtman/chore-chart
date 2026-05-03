@@ -1026,6 +1026,59 @@ def remove_empty_pages(docx_file: str) -> bool:
         return False
 
 
+def add_page_headers_libreoffice(docx_file: str) -> bool:
+    """Attempt to add page headers via LibreOffice Basic macro. Best-effort — may not work."""
+    try:
+        import tempfile
+        soffice = find_libreoffice()
+
+        macro_src = (
+            "import uno\n"
+            "\n"
+            "def AddHeaders():\n"
+            "    ctx = uno.getComponentContext()\n"
+            "    smgr = ctx.ServiceManager\n"
+            "    desktop = smgr.createInstanceWithContext('com.sun.star.frame.Desktop', ctx)\n"
+            "    url = uno.systemPathToFileUrl(r'" + docx_file.replace("\\", "\\\\") + "')\n"
+            "    doc = desktop.loadComponentFromURL(url, '_blank', 0, ())\n"
+            "    page_styles = doc.StyleFamilies.getByName('PageStyles')\n"
+            "    default_style = page_styles.getByName('Default Page Style')\n"
+            "    default_style.HeaderIsOn = True\n"
+            "    default_style.HeaderIsShared = True\n"
+            "    header_text = default_style.HeaderText\n"
+            "    cursor = header_text.createTextCursor()\n"
+            "    cursor.gotoStart(False)\n"
+            "    cursor.gotoEnd(True)\n"
+            "    header_text.insertString(cursor, 'Chore Almanac', False)\n"
+            "    doc.store()\n"
+            "    doc.close(True)\n"
+            "\n"
+            "AddHeaders()\n"
+        )
+
+        with tempfile.NamedTemporaryFile(suffix=".py", mode="w",
+                                         encoding="utf-8", delete=False) as f:
+            f.write(macro_src)
+            macro_path = f.name
+
+        result = subprocess.run(
+            [soffice, "--headless", "--norestore",
+             "--infilter=writer8", docx_file,
+             "--run-macro", f"macro:///{macro_path}"],
+            capture_output=True, text=True, timeout=60
+        )
+        os.unlink(macro_path)
+
+        if result.returncode != 0:
+            print(f"  LibreOffice macro failed (exit {result.returncode}): {result.stderr[:300]}")
+            return False
+        print("  Page headers added via LibreOffice macro.")
+        return True
+    except Exception as e:
+        print(f"Error adding page headers: {e}")
+        return False
+
+
 def post_process_docx(docx_file: str, fix_flags: dict) -> None:
     """Run all post-processing steps on the DOCX file."""
     add_table_borders_to_docx(docx_file)
