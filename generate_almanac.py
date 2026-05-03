@@ -183,6 +183,38 @@ def attempt_fixes(results: dict, fix_flags: dict, fix_log: list, attempt: int) -
                     "fixes_applied": fixes_applied})
 
 
+def escalate_to_user(results: dict, fix_log: list, report_file: str) -> None:
+    """Print escalation summary and record user response in the report."""
+    print()
+    print("=" * 50)
+    print("VALIDATION FAILED AFTER 3 ATTEMPTS")
+    print("=" * 50)
+    print()
+    print("Current rule status:")
+    for r in results.get("rules", []):
+        sym = {"PASS": "✓", "FAIL": "✗", "UNCERTAIN": "⚠"}.get(r["status"], "?")
+        print(f"  {sym} {r['status']}: Rule {r['id']} — {r['name']}")
+    print()
+    print("Fix attempts made:")
+    for entry in fix_log:
+        actions = ", ".join(f"Rule {f['rule']}: {f['action']}" for f in entry["fixes_applied"])
+        print(f"  Attempt {entry['attempt']}: {actions}")
+    print()
+    print("Possible next steps:")
+    print("  A) Try a different LibreOffice approach")
+    print("  B) Try rebuilding DOCX from scratch with python-docx only (no pandoc)")
+    print("  C) Try docx2pdf + manual post-processing")
+    print(f"  D) Review the document manually — run: start {os.path.dirname(report_file)}\\chore_almanac.docx")
+    print()
+
+    user_response = input("Would you like to try a different approach? (A/B/C/D or describe): ").strip()
+
+    with open(report_file, "a", encoding="utf-8") as f:
+        f.write(f"\nUser response: {user_response}\n")
+
+    print(f"Response recorded in {report_file}")
+
+
 DEFAULT_FIX_FLAGS = {
     "rule3_vertical_dates": False,
     "rule4_yellow_bg": False,

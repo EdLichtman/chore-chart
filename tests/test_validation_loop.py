@@ -294,3 +294,24 @@ def test_remove_empty_pages_runs_without_error(tmp_path):
 
     result = remove_empty_pages(docx_path)
     assert result is True
+
+from generate_almanac import escalate_to_user
+
+def test_escalate_to_user_writes_to_report(tmp_path, capsys):
+    results = {"rules": [
+        {"id": 1, "status": "PASS", "name": "Subchores indented", "reason": "ok"},
+        {"id": 5, "status": "FAIL", "name": "No lines between sections", "reason": "lines present"},
+    ]}
+    fix_log = [{"attempt": 1, "rules_attempted": [5], "fixes_applied": [
+        {"rule": 5, "action": "Removed paragraph borders"}
+    ]}]
+    report_file = str(tmp_path / "inspection_report.txt")
+    with patch("builtins.input", return_value="D"):
+        escalate_to_user(results, fix_log, report_file)
+
+    captured = capsys.readouterr()
+    assert "VALIDATION FAILED AFTER 3 ATTEMPTS" in captured.out
+    assert "Rule 5" in captured.out
+
+    content = open(report_file).read()
+    assert "User response: D" in content
