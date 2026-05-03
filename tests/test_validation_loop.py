@@ -48,15 +48,21 @@ def test_convert_to_image_returns_png_paths(tmp_path):
     mock_pix.save = MagicMock()
     mock_page.get_pixmap.return_value = mock_pix
 
-    mock_doc = MagicMock()
-    mock_doc.__iter__ = MagicMock(return_value=iter([mock_page]))
-    mock_doc.__len__ = MagicMock(return_value=1)
+    mock_fitz_doc = MagicMock()
+    mock_fitz_doc.__iter__ = MagicMock(return_value=iter([mock_page]))
+    mock_fitz_doc.__len__ = MagicMock(return_value=1)
 
-    with patch("generate_almanac.subprocess.run") as mock_run, \
-         patch("generate_almanac.fitz.open", return_value=mock_doc):
-        mock_run.return_value = MagicMock(returncode=0)
+    mock_word_app = MagicMock()
+    mock_word_doc = MagicMock()
+    mock_word_app.Documents.Open.return_value = mock_word_doc
+
+    with patch("win32com.client.Dispatch", return_value=mock_word_app), \
+         patch("generate_almanac.fitz.open", return_value=mock_fitz_doc), \
+         patch("os.path.exists", return_value=True):
         result = convert_to_image(str(fake_docx), str(tmp_path))
 
+    mock_word_doc.ExportAsFixedFormat.assert_called_once()
+    mock_word_doc.Close.assert_called_once()
     assert len(result) == 1
     assert result[0].endswith(".png")
 

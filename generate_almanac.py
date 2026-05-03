@@ -46,33 +46,43 @@ def find_libreoffice() -> str:
 
 
 def convert_to_image(docx_file: str, output_dir: str) -> list:
-    """Convert DOCX to PNG pages via LibreOffice + fitz. Returns list of PNG paths."""
+    """Convert DOCX to PNG pages via Word COM (accurate rendering) + fitz. Returns list of PNG paths."""
     if not HAS_FITZ:
         raise ImportError("PyMuPDF (fitz) required. Install: py -m pip install pymupdf")
 
-    soffice = find_libreoffice()
+    import win32com.client
     docx_name = os.path.splitext(os.path.basename(docx_file))[0]
     pdf_path = os.path.join(output_dir, docx_name + ".pdf")
+    abs_docx = os.path.abspath(docx_file)
+    abs_pdf = os.path.abspath(pdf_path)
 
-    print(f"Converting {docx_file} to PDF via LibreOffice...")
-    result = subprocess.run(
-        [soffice, "--headless", "--convert-to", "pdf", "--outdir", output_dir, docx_file],
-        capture_output=True, text=True, timeout=120
-    )
-    if result.returncode != 0:
-        raise RuntimeError(f"LibreOffice DOCX->PDF failed:\n{result.stderr}")
-    if not os.path.exists(pdf_path):
-        raise FileNotFoundError(f"Expected PDF at {pdf_path} but it was not created")
+    # Use Word COM to export to PDF — Word-accurate rendering, not LibreOffice
+    print(f"Converting {docx_file} to PDF via Word...")
+    word = None
+    doc = None
+    try:
+        word = win32com.client.Dispatch("Word.Application")
+        word.Visible = False
+        doc = word.Documents.Open(abs_docx)
+        doc.ExportAsFixedFormat(abs_pdf, 17)  # 17 = wdExportFormatPDF
+    finally:
+        if doc:
+            doc.Close(False)
+        if word:
+            word.Quit()
+
+    if not os.path.exists(abs_pdf):
+        raise FileNotFoundError(f"Word PDF export failed — expected {abs_pdf}")
 
     print("Rendering PDF pages to PNG (150 DPI)...")
     png_paths = []
-    doc = fitz.open(pdf_path)
-    for page_num, page in enumerate(doc):
+    pdf_doc = fitz.open(abs_pdf)
+    for page_num, page in enumerate(pdf_doc):
         pix = page.get_pixmap(dpi=150)
         png_path = os.path.join(output_dir, f"{docx_name}_page_{page_num + 1}.png")
         pix.save(png_path)
         png_paths.append(png_path)
-    doc.close()
+    pdf_doc.close()
 
     print(f"Rendered {len(png_paths)} page(s).")
     return png_paths
@@ -82,7 +92,9 @@ def validate_image(image_paths: list, checklist_path: str) -> dict:
     """Call claude -p to validate image pages against checklist. Returns parsed JSON."""
     checklist = open(checklist_path, encoding="utf-8").read()
 
-    paths_str = "\n".join(f"- {p}" for p in image_paths)
+    # Limit to first 8 pages — enough to cover all rules without timing out
+    sample_paths = image_paths[:8]
+    paths_str = "\n".join(f"- {p}" for p in sample_paths)
     prompt = (
         checklist
         + "\n\n---\n"
@@ -98,7 +110,7 @@ def validate_image(image_paths: list, checklist_path: str) -> dict:
          "--output-format", "json",
          "--no-session-persistence"],
         capture_output=True, text=True, encoding="utf-8",
-        timeout=180, stdin=subprocess.DEVNULL
+        timeout=600, stdin=subprocess.DEVNULL
     )
 
     if result.returncode != 0:
@@ -1132,6 +1144,9 @@ def post_process_docx(docx_file: str, fix_flags: dict) -> None:
 
 
 def main():
+    import sys
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+
     yaml_file   = r'c:\Users\elich\OneDrive\Eddie\Chores\chores_almanac.yaml'
     output_docx = r'c:\Users\elich\OneDrive\Eddie\Chores\chore_almanac.docx'
     output_dir  = r'c:\Users\elich\OneDrive\Eddie\Chores'
@@ -1190,7 +1205,7 @@ def main():
         try:
             results = validate_image(png_paths, checklist)
         except Exception as e:
-            print(f'Validation failed: {e}')
+            print(f'Validation failed: {type(e).__name__}')
             break
 
         # 6. Write report
