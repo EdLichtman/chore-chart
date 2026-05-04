@@ -1,0 +1,235 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: Chore Almanac
+description: >
+  Schema for chores_almanac.yaml. Defines scheduled household chores,
+  purchase reminders, as-needed tasks, and seasonal lookahead notes.
+
+type: object
+required: [chores]
+
+properties:
+
+  title:
+    type: string
+    description: Display title for the almanac (e.g. "Chore Almanac 2026").
+
+  description:
+    type: string
+    description: Free-text description of the file's purpose.
+
+  chores:
+    type: array
+    description: Scheduled chores. Each entry uses exactly one scheduling pattern.
+    items:
+      type: object
+      required: [id, name, category]
+      properties:
+
+        id:
+          type: string
+          pattern: "^[a-z0-9-]+$"
+          description: Unique kebab-case identifier (e.g. "furnace-filter").
+
+        name:
+          type: string
+          description: Display name shown in the almanac table and details section.
+
+        category:
+          type: array
+          items:
+            type: string
+            enum: [House, Yard]
+          minItems: 1
+          description: One or more categories the chore belongs to.
+
+        warning:
+          type: string
+          description: >
+            Optional caution note rendered with a highlighted warning box
+            in the details section (e.g. time estimates, household alerts).
+
+        # ── Scheduling patterns ────────────────────────────────────────────
+        # Use ONE of: active_window, starts, schedule, or interval-only.
+
+        active_window:
+          type: string
+          pattern: "^[A-Z][a-z]+ \\d{1,2} - [A-Z][a-z]+ \\d{1,2}$"
+          description: >
+            Date range within which occurrences are generated.
+            Format: "Mon DD - Mon DD" (e.g. "Apr 15 - June 1").
+            Use with `interval`. Optionally combine with `anchor_day`.
+
+        starts:
+          type: string
+          pattern: "^[A-Z][a-z]+ \\d{1,2}$"
+          description: >
+            Start date for open-ended recurring chores.
+            Format: "Mon DD" (e.g. "Apr 1"). Use with `interval`.
+            Occurrences run through Dec 31 of the almanac year.
+
+        schedule:
+          type: array
+          description: >
+            Multi-segment schedule for chores whose frequency changes by
+            month (e.g. mow weekly in summer, bi-weekly in fall).
+          items:
+            type: object
+            properties:
+              months:
+                type: string
+                pattern: "^[A-Z][a-z]+ - [A-Z][a-z]+$"
+                description: Month range for this segment (e.g. "May - July").
+              frequency:
+                type: string
+                description: Recurrence for this segment. Same values as `interval`.
+              interval:
+                type: string
+                description: Alias for `frequency` within a schedule entry.
+              status:
+                type: string
+                enum: [inactive]
+                description: >
+                  Set to "inactive" to suppress occurrences for this month
+                  range (e.g. no mowing Nov–Apr).
+
+        interval:
+          type: string
+          description: >
+            Recurrence interval. Accepted values:
+              "weekly", "bi-weekly", "biweekly",
+              "monthly", "every 2 months", "every N months",
+              "1 year", "annual", "annually",
+              "every N days", "every N weeks", "every N years",
+              "seasonal" (one occurrence per season the chore is active).
+
+        anchor_day:
+          type: integer
+          minimum: 1
+          maximum: 31
+          description: >
+            Day-of-month to use as the first occurrence when computing
+            an interval from `active_window` or `month_pin`.
+            Defaults to 1 if omitted.
+
+        month_pin:
+          type: integer
+          minimum: 1
+          maximum: 12
+          description: >
+            Starting month (1–12) for interval-only chores (no active_window
+            or starts). The cycle begins on `anchor_day` of this month.
+            Defaults to January (1) if omitted.
+            Example: month_pin=2 with interval="every 2 months" gives
+            Feb, Apr, Jun, Aug, Oct, Dec.
+
+        day_pin:
+          type: integer
+          minimum: 1
+          maximum: 31
+          description: >
+            Override the computed occurrence date to a fixed day of month.
+            Useful for chores that must happen on the 1st regardless of
+            week-anchor logic (e.g. day_pin=1 for monthly filter checks).
+
+        # ── Task content ───────────────────────────────────────────────────
+
+        details:
+          type: array
+          items:
+            type: string
+          description: >
+            Step-by-step checklist items shown in the Details section.
+            Use when the chore has no subchores.
+
+        subchores:
+          type: array
+          description: >
+            Named sub-tasks rendered as bold bullets in the Details section.
+            Use instead of (not alongside) top-level `details`.
+          items:
+            type: object
+            required: [name]
+            properties:
+              name:
+                type: string
+                description: Display name for the sub-task.
+              details:
+                type: array
+                items:
+                  type: string
+                description: >
+                  Checklist items for this sub-task. If omitted, the
+                  subchore appears in the table summary only and is
+                  excluded from the Details section.
+
+  purchase_schedule:
+    type: array
+    description: >
+      Consumables to restock. Rendered as a separate table at the end
+      of the almanac.
+    items:
+      type: object
+      required: [name, frequency]
+      properties:
+        name:
+          type: string
+          description: Product or supply name.
+        frequency:
+          type: string
+          description: How often to purchase (free text, e.g. "Once a year").
+        notes:
+          type: string
+          description: Optional purchasing tips or stock notes.
+
+  as_needed_chores:
+    type: array
+    description: >
+      Chores done on observation rather than a fixed schedule. Rendered
+      as a separate table with a "Last Done" column.
+    items:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          description: Display name.
+        category:
+          type: array
+          items:
+            type: string
+            enum: [House, Yard]
+          description: Optional category tags.
+        subchores:
+          type: array
+          description: Optional sub-tasks (same shape as chore subchores).
+          items:
+            type: object
+            required: [name]
+            properties:
+              name:
+                type: string
+              details:
+                type: array
+                items:
+                  type: string
+
+  lookahead:
+    type: array
+    description: >
+      Per-season notes printed below each season's table to prompt
+      planning for the upcoming season.
+    items:
+      type: object
+      required: [season]
+      properties:
+        season:
+          type: string
+          enum: [Winter, Spring, Summer, Fall]
+          description: The season these notes appear under.
+        notes:
+          type: array
+          items:
+            type: string
+          description: >
+            Bullet points to print. If omitted or empty, three blank
+            lines are rendered for the user to fill in by hand.

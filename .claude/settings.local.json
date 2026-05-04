@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__plugin_context7_context7__query-docs",
+      "Bash(py -m pytest tests/test_validation_loop.py -v)",
+      "mcp__plugin_context7_context7__resolve-library-id"
+    ]
+  }
+}
