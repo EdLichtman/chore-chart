@@ -1,0 +1,274 @@
+---
+title: "Chore Almanac 2026"
+description: "Annual chores with complex scheduling, seasonal windows, or multi-month intervals"
+
+chores:
+  - id: prune-trees
+    name: "Prune Trees"
+    category: ["Yard"]
+    active_window: "Feb 1 - Apr 1"
+    interval: "1 year"
+
+  - id: apply-mulch
+    name: "PreSummer (Apply Mulch & Crabgrass Preventer)"
+    category: ["Yard"]
+    active_window: "Apr 15 - May 15"
+    interval: "1 year"
+    details:
+      - "Apply new mulch"
+      - "Spread crabgrass preventer with fertilizer"
+
+  - id: spring-maintenance
+    name: "Spring Yard Tools Maintenance"
+    category: ["Yard"]
+    active_window: "Apr 15 - June 1"
+    interval: "1 year"
+    subchores:
+      - name: "Riding Mower"
+        details:
+          - "Sharpen riding mower blades"
+          - "Check/change oil in riding mower"
+          - "Clean riding mower engine filter"
+          - "Grease fittings (white lithium grease) on riding mower"
+          - "Check belts for dryness/cracking"
+          - "Check tire pressure on riding mower"
+      - name: "Push Mower"
+        details:
+          - "Sharpen push mower blade"
+          - "Check/change oil in push mower"
+      - name: "Snow Blower"
+        details:
+          - "Add stabilizer to snow blower and run for a few seconds"
+      - name: "Lawn Sweeper"
+        details:
+          - "Grease fittings (white lithium grease) on lawn sweeper"
+
+  - id: garden-hoses-spring
+    name: "Install Garden Hoses"
+    category: ["Yard"]
+    active_window: "May 1 - June 1"
+    interval: "1 year"
+    details:
+      - "Turn on outdoor hose main in basement"
+      - "Take hoses out of garage"
+      - "Connect front outdoor hose"
+      - "Connect back outdoor hose"
+
+  - id: summerize-house
+    name: "Climate Transition to Summer"
+    category: ["House"]
+    active_window: "May 1 - June 1"
+    interval: "1 year"
+    details:
+      - "Flip ceiling fans to bronze (clockwise)"
+      - "Close basement and 1st floor vents shut to force AC to upper floors"
+      - "Open 2nd floor vents"
+      - "Close floor vent, Open Ceiling vent — 2nd floor guest bedroom"
+
+  - id: fall-tool-maintenance
+    name: "Fall Tool Maintenance"
+    category: ["Yard"]
+    active_window: "Oct 15 - Dec 1"
+    interval: "1 year"
+    details:
+      - "Add stabilizer to push mower and run for a few seconds"
+      - "Add stabilizer to riding mower and run for a few seconds"
+      - "Check/service snow blower"
+      - "Clean snow blower carburetor"
+
+  - id: garden-hoses-fall
+    name: "Store Garden Hoses"
+    category: ["Yard"]
+    active_window: "Nov 1 - Dec 1"
+    interval: "1 year"
+    details:
+      - "Shut off outdoor hose main in basement"
+      - "Disconnect front outdoor hose, then open the connections to drain. Be sure to close it before frost"
+      - "Disconnect back outdoor hose, then open the connections to drain. Be sure to close it before frost"
+      - "Store hoses in garage until spring"
+
+  - id: cut-down-gardens
+    name: "Cut Down Gardens"
+    warning: 'Estimated 2-3 hours total'
+    category: ["Yard"]
+    active_window: "Nov 1 - Dec 1"
+    interval: "1 year"
+    details:
+      - "Clear leaves"
+      - "Clear dead foliage"
+      - "Split bleeding hearts as needed"
+      - "Cap roses"
+
+  - id: winterize-house
+    name: "Winterize House"
+    category: ["House"]
+    active_window: "Nov 1 - Dec 1"
+    interval: "1 year"
+    details:
+      - "Flip ceiling fans to silver (counter-clockwise)"
+      - "Open basement and 1st floor vents to allow heat to rise to upper floors"
+      - "Close 2nd floor vents to force heat to lower floors"
+      - "Open floor vent, Close Ceiling vent — 2nd floor guest bedroom"
+      - "Add weatherstripping to doors and windows"
+
+  - id: mow
+    name: "Mow"
+    category: ["Yard"]
+    schedule:
+      - months: "May - July"
+        frequency: "weekly"
+      - months: "Aug - Oct"
+        frequency: "bi-weekly"
+      - months: "Nov - Apr"
+        status: "inactive"
+
+  - id: spread-milorganite
+    name: "Spread Milorganite"
+    category: ["Yard"]
+    active_window: "Apr 1 - Nov 1"
+    interval: "every 2 months"
+    details:
+    - "Avoid heavy sun exposure"
+    - "Make sure to water lawn before and after application"
+    - "Every 2 months during the mowing season."
+
+  - id: apply-bug-control
+    name: "Apply Bug Control"
+    category: ["House", "Yard"]
+    starts: "Apr 1"
+    interval: "every 3 months"
+    details:
+      - "Wear gloves"
+      - "Talstar kept in garage along with ant pellets"
+      - "Apply Talstar using pump sprayer to perimeter of house and around foundation"
+      - "Spread Ant Pellets around foundation"
+      - "Every 3 months except during Winter."
+
+  - id: furnace-filter
+    name: "Furnace Filter"
+    category: ["House"]
+    interval: "every 2 months"
+    anchor_day: 1
+    month_pin: 2
+    day_pin: 1
+
+  - id: bleach-furnace-drain
+    name: "Bleach Furnace Drain Pipe"
+    category: ["House"]
+    interval: "every 6 months"
+    anchor_day: 1
+    month_pin: 4
+
+  - id: drain-water-heater
+    name: "Drain the Water Heater"
+    category: ["House"]
+    interval: "every 6 months"
+    anchor_day: 1
+    month_pin: 4
+    warning: "Takes ~5 hours total: ~1 hour to drain, ~4 hours to return to full temp. Water unavailable during drain. Alert household before starting."
+    details:
+      - "Turn off water"
+      - "Set to Pilot"
+      - "Open Release Valve"
+      - "Close Release Valve"
+      - "Turn on Water"
+      - "Ensure Heater back on"
+
+  - id: spring-cleaning
+    name: "Spring Cleaning"
+    category: ["House"]
+    active_window: "Apr 1 - Apr 15"
+    interval: "1 year"
+    subchores:
+      - name: "Deep Dusting , including ceilings, walls, and baseboards"
+        details:
+          - "Dust ceiling"
+          - "Dust walls"
+          - "Dust baseboards"
+          - "Once a year"
+      - name: "Sweep out Basement"
+      - name: "Check Sump Pump"
+      - name: "Steam Clean Bathrooms"
+
+  - id: fall-cleaning
+    name: "Fall Cleaning"
+    category: ["House"]
+    active_window: "Oct 1 - Nov 15"
+    interval: "1 year"
+    subchores:
+      - name: "Deep Dusting"
+        details:
+          - "Dust ceiling"
+          - "Dust walls"
+          - "Dust baseboards"
+          - "Insert Pattern"
+      - name: "Sweep out Basement"
+      - name: "Check Sump Pump"
+      - name: "Steam Clean Bathrooms"
+
+  - id: flowers-rotation
+    name: "Flowers Rotation"
+    category: ["Yard"]
+    interval: "seasonal"
+    subchores:
+      - name: "Daffodils"
+        details:
+          - "Deadhead then cut foliage to ground when yellow/shriveling"
+      - name: "Bleeding Hearts"
+        details:
+          - "Deadhead throughout summer, cut shriveled foliage to 2\""
+          - "Throughout summer, cut all to 2\" in fall"
+      - name: "Irises"
+      - name: "Hostas"
+      - name: "Allium (Purple)"
+
+  - id: water-softener-salt
+    name: "Check Water Softener Salt"
+    category: ["House"]
+    interval: "monthly"
+    day_pin: 1
+
+purchase_schedule:
+  - name: "Air Filter / Furnace Filters"
+    frequency: "Once a year"
+    notes: "buy full year supply at once (12 filters)"
+  - name: "Water Softener Salt"
+    frequency: "Once a year"
+    notes: "buy full year supply at once (12 bags), and as needed"
+  - name: "Milorganite Fertilizer"
+    frequency: "As needed"
+    notes: "Stock up in spring and use throughout mowing season"
+  - name: "Bug Control Supplies (Talstar, Ant Pellets)"
+    frequency: "As needed — verify before reordering (large stock on hand)"
+  - name: "Weed Control"
+    frequency: "As needed"
+  - name: "Garden Soil"
+    frequency: "As needed (spring)"
+  - name: "Mulch"
+    frequency: "As needed"
+    notes: "Found at local recycling center"
+  - name: "Garden Bed Plants"
+    frequency: "As needed (spring)"
+
+as_needed_chores:
+  - name: "Steam Clean Carpets"
+    category: ["House"]
+  - name: "Guest Room Prep"
+    category: ["House"]
+    subchores:
+      - name: "Heavy vacuum guest room (pet hair)"
+      - name: "Keep guest room door closed after vacuuming"
+      - name: "Clean downstairs shower"
+
+lookahead:
+  - season: "Winter"
+  - season: "Spring"
+    notes: 
+      - "Watch for later Spring or Earlier Summer to adjust predicted dates for mowing"
+      - "Watch for later Spring or Earlier Summer to adjust date of Climate Transition"
+
+  - season: "Summer"
+    notes: 
+      - "Apply Bug Control"
+      - "Cut Down Gardens earlier or later depending upon weather"
+  - season: "Fall"
