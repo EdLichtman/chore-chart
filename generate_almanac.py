@@ -27,25 +27,6 @@ try:
 except ImportError:
     HAS_FITZ = False
 
-def all_rules_pass(results: dict) -> bool:
-    return all(r["status"] != "FAIL" for r in results.get("rules", []))
-
-
-LIBREOFFICE_PATHS = [
-    r"C:\Program Files\LibreOffice\program\soffice.exe",
-    r"C:\Program Files (x86)\LibreOffice\program\soffice.exe",
-]
-
-
-def find_libreoffice() -> str:
-    for path in LIBREOFFICE_PATHS:
-        if os.path.exists(path):
-            return path
-    raise FileNotFoundError(
-        "LibreOffice not found. Install from https://www.libreoffice.org/ "
-        "or via: choco install libreoffice"
-    )
-
 
 def convert_to_image(docx_file: str, output_dir: str) -> list:
     """Convert DOCX to PNG pages via Word COM (accurate rendering) + fitz. Returns list of PNG paths."""
@@ -88,148 +69,6 @@ def convert_to_image(docx_file: str, output_dir: str) -> list:
 
     print(f"Rendered {len(png_paths)} page(s).")
     return png_paths
-
-
-def validate_image(image_paths: list, checklist_path: str) -> dict:
-    """Call claude -p to validate image pages against checklist. Returns parsed JSON."""
-    checklist = open(checklist_path, encoding="utf-8").read()
-
-    # Limit to first 8 pages — enough to cover all rules without timing out
-    sample_paths = image_paths[:8]
-    paths_str = "\n".join(f"- {p}" for p in sample_paths)
-    prompt = (
-        checklist
-        + "\n\n---\n"
-        + "Read each of these image files using the Read tool and inspect them against each rule above:\n"
-        + paths_str
-        + "\n\nFor each rule, describe what you see and whether it passes or fails, then output a final JSON"
-        + " object at the end. The JSON must be the last thing you output:\n"
-        + '{\n  "rules": [\n    {"id": 1, "name": "...", "status": "PASS" | "FAIL" | "UNCERTAIN", "reason": "..."}\n  ]\n}'
-    )
-
-    print("\n--- Claude validation output ---")
-    proc = subprocess.Popen(
-        ["claude", "-p", prompt,
-         "--allowedTools", "Read",
-         "--no-session-persistence"],
-        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-        text=True, encoding="utf-8", errors="replace",
-        stdin=subprocess.DEVNULL
-    )
-
-    output_lines = []
-    import threading
-
-    def stream_stderr():
-        for line in proc.stderr:
-            pass  # discard stderr silently
-
-    t = threading.Thread(target=stream_stderr, daemon=True)
-    t.start()
-
-    for line in proc.stdout:
-        print(line, end="", flush=True)
-        output_lines.append(line)
-
-    proc.wait(timeout=600)
-    print("\n--- end validation output ---\n")
-
-    if proc.returncode != 0:
-        raise RuntimeError(f"claude validation failed (exit {proc.returncode})")
-
-    full_output = "".join(output_lines)
-
-    # Strip markdown fences if present
-    raw = full_output.strip()
-    if raw.startswith("```"):
-        raw = raw.split("\n", 1)[1].rsplit("```", 1)[0].strip()
-
-    # Find the last JSON object in the output (Claude may write prose before the JSON)
-    last_brace = raw.rfind("```json")
-    if last_brace != -1:
-        raw = raw[last_brace + 7:].split("```")[0].strip()
-    else:
-        last_brace = raw.rfind('{"rules"')
-        if last_brace == -1:
-            last_brace = raw.rfind('{\n  "rules"')
-        if last_brace != -1:
-            raw = raw[last_brace:]
-
-    return json.loads(raw)
-
-
-def write_report(results: dict, attempt: int, max_attempts: int,
-                 fix_log: list, output_file: str) -> None:
-    from datetime import datetime
-    lines = [
-        "ALMANAC VALIDATION REPORT",
-        f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
-        f"Attempt: {attempt} of {max_attempts}",
-        "",
-        "RULE RESULTS:",
-    ]
-
-    status_sym = {"PASS": "✓", "FAIL": "✗", "UNCERTAIN": "⚠"}
-    passing = failing = uncertain = 0
-    for rule in results.get("rules", []):
-        sym = status_sym.get(rule["status"], "?")
-        name = rule.get("name", "")
-        reason = rule.get("reason", "")
-        lines.append(f"  {sym} Rule {rule['id']} — {name:<45} {rule['status']:<10} ({reason})")
-        if rule["status"] == "PASS": passing += 1
-        elif rule["status"] == "FAIL": failing += 1
-        else: uncertain += 1
-
-    lines += ["", f"PASSING: {passing}  FAILING: {failing}  UNCERTAIN: {uncertain}"]
-
-    if fix_log:
-        lines += ["", "FIXES APPLIED:"]
-        for entry in fix_log:
-            lines.append(f"  Attempt {entry['attempt']}:")
-            for fix in entry.get("fixes_applied", []):
-                lines.append(f"    Rule {fix['rule']}: {fix['action']}")
-
-    with open(output_file, "w", encoding="utf-8") as f:
-        f.write("\n".join(lines) + "\n")
-
-    print(f"Report written to {output_file}")
-
-
-
-
-def escalate_to_user(results: dict, fix_log: list, report_file: str) -> None:
-    """Print escalation summary and record user response in the report."""
-    print()
-    print("=" * 50)
-    print("VALIDATION FAILED AFTER 3 ATTEMPTS")
-    print("=" * 50)
-    print()
-    print("Current rule status:")
-    for r in results.get("rules", []):
-        sym = {"PASS": "✓", "FAIL": "✗", "UNCERTAIN": "⚠"}.get(r["status"], "?")
-        print(f"  {sym} {r['status']}: Rule {r['id']} — {r['name']}")
-    print()
-    print("Fix attempts made:")
-    for entry in fix_log:
-        actions = ", ".join(f"Rule {f['rule']}: {f['action']}" for f in entry["fixes_applied"])
-        print(f"  Attempt {entry['attempt']}: {actions}")
-    print()
-    print("Possible next steps:")
-    print("  A) Try a different LibreOffice approach")
-    print("  B) Try rebuilding DOCX from scratch with python-docx only (no pandoc)")
-    print("  C) Try docx2pdf + manual post-processing")
-    print(f"  D) Review the document manually — run: start {os.path.dirname(report_file)}\\chore_almanac.docx")
-    print()
-
-    try:
-        user_response = input("Would you like to try a different approach? (A/B/C/D or describe): ").strip()
-    except EOFError:
-        user_response = "(no input — run interactively to respond)"
-
-    with open(report_file, "a", encoding="utf-8") as f:
-        f.write(f"\nUser response: {user_response}\n")
-
-    print(f"Response recorded in {report_file}")
 
 
 
@@ -443,16 +282,6 @@ def expand_chore(chore, year):
     return rows
 
 
-def add_page_headers(docx_file):
-    """Placeholder: page headers disabled due to parse_xml corruption risk.
-
-    Field codes (STYLEREF, PAGE) require complex XML that parse_xml() cannot
-    reliably construct. Word's XML parser is strict and rejects malformed headers.
-
-    Future approach: add headers via pandoc Lua filter or modify TABLE_TEMPLATE.docx
-    before pandoc runs."""
-    pass
-
 
 def add_table_borders_to_docx(docx_file):
     """Add grid borders, header styling, and column widths to all tables in a DOCX file."""
@@ -557,77 +386,6 @@ def add_table_borders_to_docx(docx_file):
         print(f'Error adding table styling: {e}')
         return False
 
-
-def generate_grid_table(headers, rows):
-    """Generate a proper pandoc grid table."""
-    # Column widths: Chore, Category, Predicted Date, Actual Date
-    col_widths = [25, 12, 18, 6]
-
-    lines = []
-
-    # Top border
-    border = '+' + '+'.join(['-' * w for w in col_widths]) + '+'
-    lines.append(border)
-
-    # Header row
-    header_cells = []
-    for h, w in zip(headers, col_widths):
-        header_cells.append(h.ljust(w))
-    lines.append('| ' + ' | '.join(header_cells) + ' |')
-
-    # Header separator
-    sep = '+' + '+'.join(['=' * w for w in col_widths]) + '+'
-    lines.append(sep)
-
-    # Data rows
-    for row in rows:
-        row_cells = []
-        for cell, w in zip(row, col_widths):
-            cell_str = str(cell) if cell else ''
-            row_cells.append(cell_str.ljust(w))
-        lines.append('| ' + ' | '.join(row_cells) + ' |')
-        lines.append(border)
-
-    return '\n'.join(lines)
-
-
-def generate_grid_table_enhanced(rows, col_widths):
-    """Generate a pandoc grid table with support for multi-line cells."""
-    lines = []
-
-    def split_cell_lines(cell):
-        """Split cell content by newlines."""
-        return str(cell).split('\n') if cell else ['']
-
-    def pad_cell(text, width):
-        """Pad text to width."""
-        return text.ljust(width)
-
-    # Top border
-    border = '+' + '+'.join(['-' * w for w in col_widths]) + '+'
-    lines.append(border)
-
-    # Process each row
-    for row in rows:
-        # Split each cell by newlines to handle multi-line content
-        cell_lines = [split_cell_lines(cell) for cell in row]
-        max_lines = max(len(lines) for lines in cell_lines) if cell_lines else 1
-
-        # Output each line of the row
-        for line_idx in range(max_lines):
-            row_parts = []
-            for cell_idx, cell_line_list in enumerate(cell_lines):
-                if line_idx < len(cell_line_list):
-                    text = cell_line_list[line_idx]
-                else:
-                    text = ''
-                row_parts.append(pad_cell(text, col_widths[cell_idx]))
-            lines.append('| ' + ' | '.join(row_parts) + ' |')
-
-        # Row border
-        lines.append(border)
-
-    return lines
 
 
 def load_chores(yaml_file):
@@ -923,36 +681,6 @@ def generate_as_needed(chores_data):
     return '\n'.join(lines)
 
 
-def fix_subchore_heading_style(docx_file):
-    """Remove italic from Heading 5 style and add left indent."""
-    if not HAS_PYTHON_DOCX:
-        return False
-
-    try:
-        print(f'Fixing subchore heading style in {docx_file}...')
-        doc = Document(docx_file)
-
-        # Access Heading 5 style
-        styles = doc.styles
-        heading5_style = None
-        for style in styles:
-            if style.name == 'Heading 5':
-                heading5_style = style
-                break
-
-        if heading5_style:
-            # Remove italic
-            heading5_style.font.italic = False
-            # Add left indent (720 twips = 0.5 inch)
-            heading5_style.paragraph_format.left_indent = 457200  # in EMUs (914400 EMU = 1 inch)
-
-        doc.save(docx_file)
-        print('Fixed subchore heading style.')
-        return True
-    except Exception as e:
-        print(f'Error fixing subchore heading style: {e}')
-        return False
-
 
 def fix_list_spacing(docx_file):
     """Reduce spacing between list items and detail paragraphs."""
@@ -1073,32 +801,6 @@ def remove_empty_pages(docx_file: str) -> bool:
         print(f"Error removing empty pages: {e}")
         return False
 
-
-def add_page_headers_libreoffice(docx_file: str) -> bool:
-    """Add page headers via python-docx using built-in Header style with tab zones."""
-    if not HAS_PYTHON_DOCX:
-        return False
-    try:
-        print(f"Adding page headers to {docx_file}...")
-        doc = Document(docx_file)
-
-        for section in doc.sections:
-            header = section.header
-            # Setting paragraph text unlinks the header automatically
-            para = header.paragraphs[0]
-            # "Header" style has built-in center and right tab stops
-            para.text = "Chore Almanac\t\t"
-            try:
-                para.style = doc.styles["Header"]
-            except KeyError:
-                pass  # style may not exist in this template; text is still set
-
-        doc.save(docx_file)
-        print("  Page headers added.")
-        return True
-    except Exception as e:
-        print(f"  Page header error: {e}")
-        return False
 
 
 def replace_newline_literals_in_docx(docx_file: str) -> bool:
