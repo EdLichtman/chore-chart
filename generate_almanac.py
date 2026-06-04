@@ -269,6 +269,12 @@ def expand_chore(chore, year):
                 for d in generate_occurrences(anchor, interval[0], interval[1], date(year, 12, 31)):
                     add_row(snap_date(d, chore.get('day_pin'), year))
 
+    elif chore.get('interval', '').strip().lower() == 'seasonal':
+        # One occurrence per season, anchored at the start of each season within the year.
+        for season in ['Winter', 'Spring', 'Summer', 'Fall']:
+            start, _ = get_season_date_range(season, year)
+            add_row(max(start, date(year, 1, 1)))
+
     else:
         # interval-only: month_pin sets the cycle start month (default January)
         interval = parse_interval(chore.get('interval', ''))
@@ -675,7 +681,9 @@ def generate_as_needed(chores_data):
 
     for chore in as_needed:
         name = chore.get('name', '')
-        lines.append(f'| {name} | | |')
+        subchores = chore.get('subchores', [])
+        cell_text = name + ''.join(f'/n ☐ {sc["name"]}' for sc in subchores)
+        lines.append(f'| {cell_text} | | |')
 
     lines.append('')
     return '\n'.join(lines)

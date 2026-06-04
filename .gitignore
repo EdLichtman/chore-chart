@@ -7,6 +7,7 @@ workspace/app/angular/.angular/
 __pycache__/
 *.pyc
 *.pyo
+.pytest_cache/
 
 # C# / .NET
 bin/
@@ -22,3 +23,7 @@ workspace/docker-compose.override.yml
 # Generated output
 checklist.md
 checklist.html
+chore_almanac.md
+chore_almanac.docx
+chore_almanac.pdf
+debug/
